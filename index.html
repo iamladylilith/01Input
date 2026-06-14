@@ -1157,6 +1157,25 @@
       color: var(--text-muted);
       text-align: center;
     }
+    .playlist-listen-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin: 1.1rem 0 1.3rem;
+      padding: 0.42rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.74rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--brown);
+      border: 1px solid var(--beige);
+      border-radius: 50px;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .playlist-listen-btn:hover { color: var(--gold); border-color: var(--gold); background: rgba(200,144,60,0.05); }
+    /* hidden until a real URL is pasted in */
+    .playlist-listen-btn[href=""], .playlist-listen-btn[href="#"] { display: none; }
 
     /* ── Playlist section boxes ── */
     .playlist-sections {
@@ -2747,6 +2766,7 @@
                 <span class="playlist-chevron">▼</span>
               </div>
               <div class="playlist-body">
+                <a class="playlist-listen-btn" href="" target="_blank" rel="noopener">▶ Press play. You're welcome.</a>
                 <div class="playlist-songs">
                   <p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p>
                 </div>
@@ -2762,8 +2782,80 @@
                 <span class="playlist-chevron">▼</span>
               </div>
               <div class="playlist-body">
+                <a class="playlist-listen-btn" href="" target="_blank" rel="noopener">▶ Press play. You're welcome.</a>
                 <div class="playlist-songs">
-                  <p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p>
+                  <div class="playlist-song"><span class="song-num">01</span><span class="song-title">Stereo Love</span><span class="song-artist">Edward Maya &amp; Vika Jigulina</span></div>
+                  <div class="playlist-song"><span class="song-num">02</span><span class="song-title">Eurosummer</span><span class="song-artist">Zara Larsson</span></div>
+                  <div class="playlist-song"><span class="song-num">03</span><span class="song-title">Ma Cherie (DJ Antoine vs. Mad Mark 2k12 Radio Edit)</span><span class="song-artist">DJ Antoine</span></div>
+                  <div class="playlist-song"><span class="song-num">04</span><span class="song-title">DotA (Radio Edit)</span><span class="song-artist">Basshunter</span></div>
+                  <div class="playlist-song"><span class="song-num">05</span><span class="song-title">What It Is (Block Boy) [feat. Kodak Black]</span><span class="song-artist">Doechii</span></div>
+                  <div class="playlist-song"><span class="song-num">06</span><span class="song-title">Pink Pony Club</span><span class="song-artist">Chappell Roan</span></div>
+                  <div class="playlist-song"><span class="song-num">07</span><span class="song-title">All The Things She Said (Martin's Extended Heated Radio Remix)</span><span class="song-artist">t.A.T.u.</span></div>
+                  <div class="playlist-song"><span class="song-num">08</span><span class="song-title">CAŁE LATO</span><span class="song-artist">Sobel &amp; francis</span></div>
+                  <div class="playlist-song"><span class="song-num">09</span><span class="song-title">Bachata</span><span class="song-artist">Kay One &amp; Cristobal</span></div>
+                  <div class="playlist-song"><span class="song-num">10</span><span class="song-title">The Fate of Ophelia</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">11</span><span class="song-title">Can't Fight the Moonlight</span><span class="song-artist">LeAnn Rimes</span></div>
+                  <div class="playlist-song"><span class="song-num">12</span><span class="song-title">Doktorspiele (feat. Yass)</span><span class="song-artist">Alex C.</span></div>
+                  <div class="playlist-song"><span class="song-num">13</span><span class="song-title">Say Don't Go (Taylor's Version) [From The Vault]</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">14</span><span class="song-title">Shake It Off (Taylor's Version)</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">15</span><span class="song-title">Beautiful (feat. Colby O'Donis &amp; Kardinal Offishall)</span><span class="song-artist">Akon</span></div>
+                  <div class="playlist-song"><span class="song-num">16</span><span class="song-title">Right Now (Na Na Na)</span><span class="song-artist">Akon</span></div>
+                  <div class="playlist-song"><span class="song-num">17</span><span class="song-title">All the Things She Said</span><span class="song-artist">Harrison</span></div>
+                  <div class="playlist-song"><span class="song-num">18</span><span class="song-title">Your Love Is My Drug</span><span class="song-artist">Kesha</span></div>
+                  <div class="playlist-song"><span class="song-num">19</span><span class="song-title">Live Your Life (feat. Rihanna)</span><span class="song-artist">T.I.</span></div>
+                  <div class="playlist-song"><span class="song-num">20</span><span class="song-title">Whatever You Like</span><span class="song-artist">T.I.</span></div>
+                  <div class="playlist-song"><span class="song-num">21</span><span class="song-title">Loco Contigo (feat. Tyga)</span><span class="song-artist">DJ Snake &amp; J Balvin</span></div>
+                  <div class="playlist-song"><span class="song-num">22</span><span class="song-title">Kingston Town</span><span class="song-artist">UB40</span></div>
+                  <div class="playlist-song"><span class="song-num">23</span><span class="song-title">Am I Wrong</span><span class="song-artist">Nico &amp; Vinz</span></div>
+                  <div class="playlist-song"><span class="song-num">24</span><span class="song-title">In My Head</span><span class="song-artist">Jason Derulo</span></div>
+                  <div class="playlist-song"><span class="song-num">25</span><span class="song-title">Dangerous Night</span><span class="song-artist">Thirty Seconds to Mars</span></div>
+                  <div class="playlist-song"><span class="song-num">26</span><span class="song-title">I Gotta Feeling</span><span class="song-artist">Black Eyed Peas</span></div>
+                  <div class="playlist-song"><span class="song-num">27</span><span class="song-title">Propuesta Indecente</span><span class="song-artist">Romeo Santos</span></div>
+                  <div class="playlist-song"><span class="song-num">28</span><span class="song-title">Wild Child</span><span class="song-artist">Elen Levon</span></div>
+                  <div class="playlist-song"><span class="song-num">29</span><span class="song-title">Holy Ground (Taylor's Version)</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">30</span><span class="song-title">Naturally</span><span class="song-artist">Selena Gomez &amp; The Scene</span></div>
+                  <div class="playlist-song"><span class="song-num">31</span><span class="song-title">Maria</span><span class="song-artist">Blondie</span></div>
+                  <div class="playlist-song"><span class="song-num">32</span><span class="song-title">Розовое вино</span><span class="song-artist">Allj &amp; FEDUK</span></div>
+                  <div class="playlist-song"><span class="song-num">33</span><span class="song-title">Hit the Lights</span><span class="song-artist">Selena Gomez &amp; The Scene</span></div>
+                  <div class="playlist-song"><span class="song-num">34</span><span class="song-title">10 Minutes (By Play Win)</span><span class="song-artist">Inna</span></div>
+                  <div class="playlist-song"><span class="song-num">35</span><span class="song-title">Amazing</span><span class="song-artist">Inna</span></div>
+                  <div class="playlist-song"><span class="song-num">36</span><span class="song-title">More Than Friends (feat. Daddy Yankee)</span><span class="song-artist">Inna</span></div>
+                  <div class="playlist-song"><span class="song-num">37</span><span class="song-title">Danza Kuduro (feat. Don Omar) [Version MTO]</span><span class="song-artist">Lucenzo</span></div>
+                  <div class="playlist-song"><span class="song-num">38</span><span class="song-title">Hasta el Amanecer</span><span class="song-artist">Nicky Jam</span></div>
+                  <div class="playlist-song"><span class="song-num">39</span><span class="song-title">Robarte un Beso</span><span class="song-artist">Carlos Vives &amp; Sebastián Yatra</span></div>
+                  <div class="playlist-song"><span class="song-num">40</span><span class="song-title">Alibi</span><span class="song-artist">Sevdaliza, Pabllo Vittar &amp; Yseult</span></div>
+                  <div class="playlist-song"><span class="song-num">41</span><span class="song-title">Long Hot Summer</span><span class="song-artist">Keith Urban</span></div>
+                  <div class="playlist-song"><span class="song-num">42</span><span class="song-title">S.O.S.</span><span class="song-artist">Jonas Brothers</span></div>
+                  <div class="playlist-song"><span class="song-num">43</span><span class="song-title">Dancing On Dangerous (feat. Sofia Reyes)</span><span class="song-artist">Imanbek &amp; Sean Paul</span></div>
+                  <div class="playlist-song"><span class="song-num">44</span><span class="song-title">Cruel Summer</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">45</span><span class="song-title">Better Than Revenge</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">46</span><span class="song-title">Opalite</span><span class="song-artist">Taylor Swift</span></div>
+                  <div class="playlist-song"><span class="song-num">47</span><span class="song-title">I Need Your Love (feat. Ellie Goulding)</span><span class="song-artist">Calvin Harris</span></div>
+                  <div class="playlist-song"><span class="song-num">48</span><span class="song-title">Despacito (feat. Justin Bieber) [Remix]</span><span class="song-artist">Luis Fonsi &amp; Daddy Yankee</span></div>
+                  <div class="playlist-song"><span class="song-num">49</span><span class="song-title">C'est la vie</span><span class="song-artist">Khaled</span></div>
+                  <div class="playlist-song"><span class="song-num">50</span><span class="song-title">She Doesn't Mind</span><span class="song-artist">Sean Paul</span></div>
+                  <div class="playlist-song"><span class="song-num">51</span><span class="song-title">Deja Vu</span><span class="song-artist">KHAERIS</span></div>
+                  <div class="playlist-song"><span class="song-num">52</span><span class="song-title">I Don't Know (DJ Ross Remix)</span><span class="song-artist">Erika</span></div>
+                  <div class="playlist-song"><span class="song-num">53</span><span class="song-title">My Life Is a Party (Radio Edit)</span><span class="song-artist">ItaloBrothers</span></div>
+                  <div class="playlist-song"><span class="song-num">54</span><span class="song-title">CALIFORNIA LOVE</span><span class="song-artist">White 2115, VVSimon, Palar &amp; PMBTZ</span></div>
+                  <div class="playlist-song"><span class="song-num">55</span><span class="song-title">Across Time</span><span class="song-artist">Dhian Dirga</span></div>
+                  <div class="playlist-song"><span class="song-num">56</span><span class="song-title">Meneo</span><span class="song-artist">Fito Blanko</span></div>
+                  <div class="playlist-song"><span class="song-num">57</span><span class="song-title">Tamo Bien</span><span class="song-artist">Enrique Iglesias, Pitbull &amp; IAmChino</span></div>
+                  <div class="playlist-song"><span class="song-num">58</span><span class="song-title">Memories (feat. Kid Cudi)</span><span class="song-artist">David Guetta</span></div>
+                  <div class="playlist-song"><span class="song-num">59</span><span class="song-title">Angel In the Night (Radio Edit)</span><span class="song-artist">Basshunter</span></div>
+                  <div class="playlist-song"><span class="song-num">60</span><span class="song-title">Up Down (Do This All Day) [feat. B.o.B]</span><span class="song-artist">T-Pain</span></div>
+                  <div class="playlist-song"><span class="song-num">61</span><span class="song-title">Blah Blah Blah</span><span class="song-artist">R2</span></div>
+                  <div class="playlist-song"><span class="song-num">62</span><span class="song-title">PALMA DE MALLORCA</span><span class="song-artist">Mata &amp; Żabson</span></div>
+                  <div class="playlist-song"><span class="song-num">63</span><span class="song-title">Baila Conmigo</span><span class="song-artist">Selena Gomez &amp; Rauw Alejandro</span></div>
+                  <div class="playlist-song"><span class="song-num">64</span><span class="song-title">Recházame</span><span class="song-artist">Prince Royce</span></div>
+                  <div class="playlist-song"><span class="song-num">65</span><span class="song-title">La Carretera</span><span class="song-artist">Prince Royce</span></div>
+                  <div class="playlist-song"><span class="song-num">66</span><span class="song-title">Magic In The Air (feat. Ahmed Chawki)</span><span class="song-artist">Magic System</span></div>
+                  <div class="playlist-song"><span class="song-num">67</span><span class="song-title">La Isla Bonita</span><span class="song-artist">Madonna</span></div>
+                  <div class="playlist-song"><span class="song-num">68</span><span class="song-title">Freaky Like Me (feat. Ameerah)</span><span class="song-artist">Madcon</span></div>
+                  <div class="playlist-song"><span class="song-num">69</span><span class="song-title">Savage Love</span><span class="song-artist">Deep Chills &amp; P.Ards</span></div>
+                  <div class="playlist-song"><span class="song-num">70</span><span class="song-title">Dakiti</span><span class="song-artist">Bad Bunny &amp; JHAYCO</span></div>
+                  <div class="playlist-song"><span class="song-num">71</span><span class="song-title">Back Seat</span><span class="song-artist">Social Animals</span></div>
+                  <div class="playlist-song"><span class="song-num">72</span><span class="song-title">Dżaga</span><span class="song-artist">Virgin</span></div>
                 </div>
               </div>
             </div>
