@@ -1265,18 +1265,7 @@
       filter: saturate(0.96) brightness(1.02);
       z-index: 0;
     }
-    .leaflet-container { background: var(--beige); font-family: 'DM Sans', sans-serif; }
-    .map-pin-label {
-      background: rgba(250, 245, 238, 0.96);
-      border: 1px solid rgba(200, 144, 60, 0.55);
-      color: var(--dark-brown);
-      font-size: 0.62rem; font-weight: 600;
-      letter-spacing: 0.02em;
-      padding: 2px 7px; border-radius: 4px;
-      box-shadow: 0 2px 6px rgba(61, 32, 16, 0.18);
-      white-space: nowrap;
-    }
-    .map-pin-label.leaflet-tooltip-top::before { border-top-color: rgba(250, 245, 238, 0.96); }
+
     .map-mini::after {                    /* warm tint to match the palette */
       content: '';
       position: absolute; inset: 0;
@@ -1322,9 +1311,9 @@
       height: 80vh;
       background: var(--beige);
       border-radius: 4px; overflow: hidden;
+      display: flex; flex-direction: column;
     }
-    .map-modal-inner iframe,
-    #map-modal-canvas { width: 100%; height: 100%; border: 0; }
+    #map-modal-iframe { flex: 1; border: 0; width: 100%; display: block; }
     .map-modal-close {
       position: absolute; top: -42px; right: 0;
       font-size: 0.75rem; font-weight: 500;
@@ -1334,6 +1323,31 @@
       font-family: 'DM Sans', sans-serif; transition: color 0.2s;
     }
     .map-modal-close:hover { color: var(--parchment); }
+    .map-modal-gmaps-bar {
+      flex-shrink: 0;
+      padding: 10px 20px;
+      background: var(--parchment);
+      display: flex; align-items: center; justify-content: center;
+      border-top: 1px solid rgba(200, 160, 90, 0.25);
+    }
+    .map-modal-gmaps-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--dark-brown); text-decoration: none;
+      padding: 8px 20px; border: 1px solid var(--gold); border-radius: 30px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .map-modal-gmaps-btn:hover { background: var(--gold); color: var(--parchment); }
+    .map-gmaps-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 9px;
+      font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .map-gmaps-link:hover { color: var(--dark-brown); }
 
     /* ── Site footer ── */
     .site-footer {
@@ -1418,8 +1432,6 @@
     .nav-dropdown .nav-link:hover,
     .nav-dropdown .nav-link.active { background: rgba(200,144,60,0.06); }
   </style>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -2510,7 +2522,7 @@
 
         <div class="map-card" onclick="openMapModal('mallorca')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-mallorca"></div>
+            <iframe class="map-mini-canvas" id="mini-mallorca" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2521,7 +2533,7 @@
 
         <div class="map-card" onclick="openMapModal('maldives')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-maldives"></div>
+            <iframe class="map-mini-canvas" id="mini-maldives" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2532,7 +2544,7 @@
 
         <div class="map-card" onclick="openMapModal('paris')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-paris"></div>
+            <iframe class="map-mini-canvas" id="mini-paris" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2543,7 +2555,7 @@
 
         <div class="map-card" onclick="openMapModal('brussels')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-brussels"></div>
+            <iframe class="map-mini-canvas" id="mini-brussels" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2554,7 +2566,7 @@
 
         <div class="map-card" onclick="openMapModal('vienna')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-vienna"></div>
+            <iframe class="map-mini-canvas" id="mini-vienna" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2565,7 +2577,7 @@
 
         <div class="map-card" onclick="openMapModal('thailand')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-thailand"></div>
+            <iframe class="map-mini-canvas" id="mini-thailand" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2576,7 +2588,7 @@
 
         <div class="map-card" onclick="openMapModal('milan')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-milan"></div>
+            <iframe class="map-mini-canvas" id="mini-milan" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2587,7 +2599,7 @@
 
         <div class="map-card" onclick="openMapModal('newengland')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-newengland"></div>
+            <iframe class="map-mini-canvas" id="mini-newengland" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2598,7 +2610,7 @@
 
         <div class="map-card" onclick="openMapModal('newyork')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-newyork"></div>
+            <iframe class="map-mini-canvas" id="mini-newyork" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2609,7 +2621,7 @@
 
         <div class="map-card" onclick="openMapModal('amalfi')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-amalfi"></div>
+            <iframe class="map-mini-canvas" id="mini-amalfi" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2620,7 +2632,7 @@
 
         <div class="map-card" onclick="openMapModal('california')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-california"></div>
+            <iframe class="map-mini-canvas" id="mini-california" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2631,7 +2643,7 @@
 
         <div class="map-card" onclick="openMapModal('rome')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-rome"></div>
+            <iframe class="map-mini-canvas" id="mini-rome" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2642,7 +2654,7 @@
 
         <div class="map-card" onclick="openMapModal('copenhagen')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-copenhagen"></div>
+            <iframe class="map-mini-canvas" id="mini-copenhagen" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2653,7 +2665,7 @@
 
         <div class="map-card" onclick="openMapModal('sicily')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-sicily"></div>
+            <iframe class="map-mini-canvas" id="mini-sicily" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2664,7 +2676,7 @@
 
         <div class="map-card" onclick="openMapModal('edinburgh')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-edinburgh"></div>
+            <iframe class="map-mini-canvas" id="mini-edinburgh" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2675,7 +2687,7 @@
 
         <div class="map-card" onclick="openMapModal('rhodes')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-rhodes"></div>
+            <iframe class="map-mini-canvas" id="mini-rhodes" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2686,7 +2698,7 @@
 
         <div class="map-card" onclick="openMapModal('poland')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-poland"></div>
+            <iframe class="map-mini-canvas" id="mini-poland" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -2697,7 +2709,7 @@
 
         <div class="map-card" onclick="openMapModal('berlin')">
           <div class="map-mini">
-            <div class="map-mini-canvas" id="mini-berlin"></div>
+            <iframe class="map-mini-canvas" id="mini-berlin" frameborder="0" loading="lazy" title="Map" style="border:0;"></iframe>
             <span class="map-open">Open map ↗</span>
           </div>
           <div class="map-info">
@@ -4403,9 +4415,30 @@
     });
 
     /* ── Map page (Leaflet — free, no API key, unlimited pins) ── */
-    const MAP_TILES = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    const MAP_ATTR  = '&copy; OpenStreetMap, &copy; CARTO';
-    const MAP_PIN   = { radius: 5, color: '#7a5030', weight: 2, fillColor: '#c8903c', fillOpacity: 0.95 };
+    // Build Google Maps URLs from TRIPS_MAP data — no API key required
+    function _gmapsEmbedUrl(id) {
+      const t = TRIPS_MAP[id];
+      if (!t || !t.markers.length) return '';
+      const lats = t.markers.map(function(m) { return m[1]; });
+      const lngs = t.markers.map(function(m) { return m[2]; });
+      const lat = lats.reduce(function(a, b) { return a + b; }, 0) / lats.length;
+      const lng = lngs.reduce(function(a, b) { return a + b; }, 0) / lngs.length;
+      return 'https://maps.google.com/maps?q=' + lat.toFixed(4) + ',' + lng.toFixed(4)
+           + '&z=' + (t.zoom || 12) + '&output=embed&hl=en';
+    }
+    function _gmapsOpenUrl(id) {
+      const t = TRIPS_MAP[id];
+      if (!t || !t.markers.length) return 'https://maps.google.com/';
+      if (t.markers.length === 1) {
+        const m = t.markers[0];
+        return 'https://www.google.com/maps/place/' + encodeURIComponent(m[0])
+             + '/@' + m[1] + ',' + m[2] + ',' + (t.zoom || 12) + 'z/';
+      }
+      return 'https://www.google.com/maps/dir/'
+           + t.markers.slice(0, 10).map(function(m) {
+               return m[1].toFixed(4) + ',' + m[2].toFixed(4);
+             }).join('/') + '/';
+    }
 
     const TRIPS_MAP = {
       california: { zoom: 6, markers: [
@@ -4508,51 +4541,34 @@
       ]}
     };
 
-    function tripPins(group, markers, permanent) {
-      const pts = [];
-      markers.forEach(function (mk) {
-        const m = L.circleMarker([mk[1], mk[2]], MAP_PIN).addTo(group);
-        m.bindTooltip(mk[0], { permanent: !!permanent, direction: 'top',
-                               className: 'map-pin-label', offset: [0, -4] });
-        pts.push([mk[1], mk[2]]);
-      });
-      return pts;
-    }
-    function fitMap(map, t, pts, pad) {
-      if (pts.length > 1) map.fitBounds(pts, { padding: pad });
-      else map.setView(pts[0], t.zoom || 12);
-    }
 
-    /* Mini map previews (non-interactive) */
-    const miniMaps = {};
+
+    /* Mini map previews — lazy-loaded Google Maps iframes */
     let miniInited = false;
     function initMiniMaps() {
-      if (typeof L === 'undefined') return;
-      Object.keys(TRIPS_MAP).forEach(function (id) {
+      Object.keys(TRIPS_MAP).forEach(function(id) {
         const el = document.getElementById('mini-' + id);
-        if (!el) return;
-        const map = L.map(el, {
-          zoomControl: false, attributionControl: false, dragging: false,
-          scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false,
-          keyboard: false, touchZoom: false
-        });
-        L.tileLayer(MAP_TILES, { attribution: MAP_ATTR }).addTo(map);
-        const g = L.layerGroup().addTo(map);
-        const pts = tripPins(g, TRIPS_MAP[id].markers, false);
-        miniMaps[id] = { map: map, pts: pts, t: TRIPS_MAP[id] };
-        fitMap(map, TRIPS_MAP[id], pts, [18, 18]);
-      });
-    }
-    function refreshMiniMaps() {
-      Object.keys(miniMaps).forEach(function (id) {
-        const o = miniMaps[id];
-        o.map.invalidateSize();
-        fitMap(o.map, o.t, o.pts, [18, 18]);
+        if (!el || el.getAttribute('src')) return; // skip if already loaded
+        el.src = _gmapsEmbedUrl(id);
+        // Inject "Save in Google Maps" link into the card's .map-info
+        const card = el.closest ? el.closest('.map-card') : null;
+        if (card && !card.querySelector('.map-gmaps-link')) {
+          const info = card.querySelector('.map-info');
+          if (info) {
+            const a = document.createElement('a');
+            a.className = 'map-gmaps-link';
+            a.href = _gmapsOpenUrl(id);
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = '📍 Save in Google Maps';
+            a.addEventListener('click', function(e) { e.stopPropagation(); });
+            info.appendChild(a);
+          }
+        }
       });
     }
     function onMapShown() {
       if (!miniInited) { initMiniMaps(); miniInited = true; }
-      setTimeout(refreshMiniMaps, 60);
     }
     /* Hook into existing navigation without altering it */
     if (typeof showPage === 'function') {
@@ -4560,29 +4576,23 @@
       showPage = function (id) { _origShowPage(id); if (id === 'map') onMapShown(); };
     }
 
-    /* Fullscreen interactive map */
-    let modalMap = null, modalLayer = null;
+    /* Fullscreen interactive Google Maps */
     function openMapModal(id) {
       const t = TRIPS_MAP[id];
-      if (!t || typeof L === 'undefined') return;
+      if (!t) return;
       document.getElementById('map-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
-      setTimeout(function () {
-        if (!modalMap) {
-          modalMap = L.map('map-modal-canvas');
-          L.tileLayer(MAP_TILES, { attribution: MAP_ATTR }).addTo(modalMap);
-        }
-        if (modalLayer) modalMap.removeLayer(modalLayer);
-        modalLayer = L.layerGroup().addTo(modalMap);
-        const pts = tripPins(modalLayer, t.markers, true);
-        modalMap.invalidateSize();
-        fitMap(modalMap, t, pts, [50, 50]);
-      }, 90);
+      const iframe = document.getElementById('map-modal-iframe');
+      const gmapsLink = document.getElementById('map-modal-gmaps-link');
+      if (iframe) iframe.src = _gmapsEmbedUrl(id);
+      if (gmapsLink) gmapsLink.href = _gmapsOpenUrl(id);
     }
     function closeMapModal(e) {
-      if (e && e.target.id !== 'map-modal') return; // ignore clicks inside the map
+      if (e && e.target.id !== 'map-modal') return;
       document.getElementById('map-modal').classList.remove('open');
       document.body.style.overflow = '';
+      const iframe = document.getElementById('map-modal-iframe');
+      if (iframe) iframe.src = '';
     }
 
     /* ── Init language on load ── */
@@ -4605,7 +4615,10 @@
   <div class="map-modal" id="map-modal" onclick="closeMapModal(event)">
     <div class="map-modal-inner">
       <button class="map-modal-close" onclick="closeMapModal()">✕ &nbsp; Close</button>
-      <div id="map-modal-canvas"></div>
+      <iframe id="map-modal-iframe" frameborder="0" title="Interactive map" style="border:0;"></iframe>
+      <div class="map-modal-gmaps-bar">
+        <a id="map-modal-gmaps-link" class="map-modal-gmaps-btn" href="#" target="_blank" rel="noopener">📍 Save these places in Google Maps</a>
+      </div>
     </div>
   </div>
 
