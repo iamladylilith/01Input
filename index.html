@@ -3889,6 +3889,33 @@
     /* ── Owner mode: video links, stored in Supabase (video_links table) ── */
     const PLAYLIST_URLS = {};
 
+    function getAllPlaylistIds() {
+      return Array.from(document.querySelectorAll('.playlist-item[id^="pl-"]'))
+        .map(function (el) { return el.id.slice(3); });
+    }
+
+    function initPlaylistLinks() {
+      getAllPlaylistIds().forEach(function (id) {
+        const body = document.querySelector('#pl-' + id + ' .playlist-body');
+        if (!body || body.querySelector('.pl-link-row')) return;
+        const row = document.createElement('div');
+        row.className = 'owner-row pl-link-row';
+        row.innerHTML = '<input class="owner-input" id="pl-link-input-' + id + '" type="url" placeholder="Paste YouTube or Spotify playlist URL…" />'
+          + '<button class="owner-save" onclick="savePlaylistLink(\'' + id + '\')">Save</button>'
+          + '<span class="owner-note" id="pl-link-note-' + id + '"></span>';
+        const btn = document.createElement('a');
+        btn.className = 'playlist-listen-btn';
+        btn.id = 'pl-listen-' + id;
+        btn.href = '';
+        btn.target = '_blank';
+        btn.rel = 'noopener';
+        btn.style.display = 'none';
+        btn.textContent = '▶ Press play. You\'re welcome.';
+        body.insertBefore(btn, body.firstChild);
+        body.insertBefore(row, body.firstChild);
+      });
+    }
+
     async function fetchVideoLinks() {
       const res = await sb.from('video_links').select('*');
       if (res.error) { console.error(res.error); return; }
@@ -3899,7 +3926,7 @@
           VIDEOS[r.trip_id] = r.url;
         }
       });
-      ['mallorca', 'california'].forEach(refreshPlaylistBtn);
+      getAllPlaylistIds().forEach(refreshPlaylistBtn);
     }
 
     function refreshPlaylistBtn(id) {
@@ -4237,6 +4264,9 @@
 
       /* Track this page visit (fire-and-forget). */
       sb.from('page_views').insert({});
+
+      /* Inject owner URL input + listen button into every playlist. */
+      initPlaylistLinks();
 
       /* Load all shared content from Supabase, then render. */
       await Promise.all([fetchVideoLinks(), fetchOutfits(), fetchTripPhotos()]);
