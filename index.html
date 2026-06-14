@@ -1174,8 +1174,7 @@
       transition: color 0.2s, border-color 0.2s, background 0.2s;
     }
     .playlist-listen-btn:hover { color: var(--gold); border-color: var(--gold); background: rgba(200,144,60,0.05); }
-    /* hidden until a real URL is pasted in */
-    .playlist-listen-btn[href=""], .playlist-listen-btn[href="#"] { display: none; }
+    .pl-link-row { margin-bottom: 0.6rem; }
 
     /* ── Playlist section boxes ── */
     .playlist-sections {
@@ -1329,6 +1328,40 @@
       font-family: 'DM Sans', sans-serif; transition: color 0.2s;
     }
     .map-modal-close:hover { color: var(--parchment); }
+
+    /* ── Site footer ── */
+    .site-footer {
+      padding: 2.5rem 2.5rem 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(200, 144, 60, 0.2);
+      margin-top: 3rem;
+    }
+    .footer-contact {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .footer-label {
+      font-weight: 500;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .footer-link { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .footer-link:hover { color: var(--gold); }
+    .footer-sep { color: var(--beige); }
+    .footer-stats {
+      display: none;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+    }
+    body.owner .footer-stats { display: block; }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -2766,7 +2799,12 @@
                 <span class="playlist-chevron">▼</span>
               </div>
               <div class="playlist-body">
-                <a class="playlist-listen-btn" href="" target="_blank" rel="noopener">▶ Press play. You're welcome.</a>
+                <div class="owner-row pl-link-row">
+                  <input class="owner-input" id="pl-link-input-california" type="url" placeholder="Paste YouTube or Spotify playlist URL…" />
+                  <button class="owner-save" onclick="savePlaylistLink('california')">Save</button>
+                  <span class="owner-note" id="pl-link-note-california"></span>
+                </div>
+                <a class="playlist-listen-btn" id="pl-listen-california" href="" target="_blank" rel="noopener" style="display:none">▶ Press play. You're welcome.</a>
                 <div class="playlist-songs">
                   <p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p>
                 </div>
@@ -2782,7 +2820,12 @@
                 <span class="playlist-chevron">▼</span>
               </div>
               <div class="playlist-body">
-                <a class="playlist-listen-btn" href="" target="_blank" rel="noopener">▶ Press play. You're welcome.</a>
+                <div class="owner-row pl-link-row">
+                  <input class="owner-input" id="pl-link-input-mallorca" type="url" placeholder="Paste YouTube or Spotify playlist URL…" />
+                  <button class="owner-save" onclick="savePlaylistLink('mallorca')">Save</button>
+                  <span class="owner-note" id="pl-link-note-mallorca"></span>
+                </div>
+                <a class="playlist-listen-btn" id="pl-listen-mallorca" href="" target="_blank" rel="noopener" style="display:none">▶ Press play. You're welcome.</a>
                 <div class="playlist-songs">
                   <div class="playlist-song"><span class="song-num">01</span><span class="song-title">Stereo Love</span><span class="song-artist">Edward Maya &amp; Vika Jigulina</span></div>
                   <div class="playlist-song"><span class="song-num">02</span><span class="song-title">Eurosummer</span><span class="song-artist">Zara Larsson</span></div>
@@ -3844,10 +3887,45 @@
     }
 
     /* ── Owner mode: video links, stored in Supabase (video_links table) ── */
+    const PLAYLIST_URLS = {};
+
     async function fetchVideoLinks() {
       const res = await sb.from('video_links').select('*');
       if (res.error) { console.error(res.error); return; }
-      res.data.forEach(function (r) { VIDEOS[r.trip_id] = r.url; });
+      res.data.forEach(function (r) {
+        if (r.trip_id.startsWith('pl-')) {
+          PLAYLIST_URLS[r.trip_id.slice(3)] = r.url;
+        } else {
+          VIDEOS[r.trip_id] = r.url;
+        }
+      });
+      ['mallorca', 'california'].forEach(refreshPlaylistBtn);
+    }
+
+    function refreshPlaylistBtn(id) {
+      const url = PLAYLIST_URLS[id] || '';
+      const btn = document.getElementById('pl-listen-' + id);
+      if (btn) { btn.href = url; btn.style.display = url ? 'inline-flex' : 'none'; }
+      const input = document.getElementById('pl-link-input-' + id);
+      if (input) input.value = url;
+    }
+
+    async function savePlaylistLink(id) {
+      const url   = document.getElementById('pl-link-input-' + id).value.trim();
+      const note  = document.getElementById('pl-link-note-' + id);
+      const tripId = 'pl-' + id;
+      let res;
+      if (url) {
+        res = await sb.from('video_links').upsert({ trip_id: tripId, url: url, updated_at: new Date().toISOString() });
+      } else {
+        res = await sb.from('video_links').delete().eq('trip_id', tripId);
+      }
+      if (res.error) { note.textContent = 'Error saving'; note.style.opacity = '1'; return; }
+      PLAYLIST_URLS[id] = url;
+      refreshPlaylistBtn(id);
+      note.textContent = url ? '✓ Saved' : 'Cleared';
+      note.style.opacity = '1';
+      setTimeout(function () { note.style.opacity = '0'; }, 1800);
     }
 
     function refreshWatchButtons() {
@@ -3882,6 +3960,12 @@
     /* ── Owner mode: real login via Supabase Auth ──
        The ⚙ button opens a login form when logged out, or logs you out when
        already in owner mode. Supabase remembers the session across reloads. */
+    async function loadViewCount() {
+      const { count } = await sb.from('page_views').select('*', { count: 'exact', head: true });
+      const el = document.getElementById('site-view-count');
+      if (el) el.textContent = count != null ? count.toLocaleString() : '—';
+    }
+
     async function toggleOwner() {
       if (document.body.classList.contains('owner')) {
         await sb.auth.signOut();
@@ -3916,6 +4000,7 @@
       btn.disabled = false; btn.textContent = 'Log in';
       if (error) { errEl.textContent = 'Wrong email or password.'; return; }
       document.body.classList.add('owner');
+      loadViewCount();
       closeLogin();
     }
 
@@ -4148,7 +4233,10 @@
     document.addEventListener('DOMContentLoaded', async function () {
       /* Restore owner mode if a Supabase login session is still active. */
       const sess = await sb.auth.getSession();
-      if (sess.data.session) document.body.classList.add('owner');
+      if (sess.data.session) { document.body.classList.add('owner'); loadViewCount(); }
+
+      /* Track this page visit (fire-and-forget). */
+      sb.from('page_views').insert({});
 
       /* Load all shared content from Supabase, then render. */
       await Promise.all([fetchVideoLinks(), fetchOutfits(), fetchTripPhotos()]);
@@ -4342,6 +4430,20 @@
     /* ── Init language on load ── */
     setLanguage(currentLang);
   </script>
+
+  <!-- ── Site footer ── -->
+  <footer class="site-footer">
+    <div class="footer-contact">
+      <span class="footer-label">Contact</span>
+      <a href="mailto:patrycja.bogaj@gmail.com" class="footer-link">patrycja.bogaj@gmail.com</a>
+      <span class="footer-sep">·</span>
+      <a href="https://www.instagram.com/iamladylilith" target="_blank" rel="noopener" class="footer-link">@iamladylilith</a>
+    </div>
+    <div class="footer-stats">
+      <span class="footer-label">Total views</span> &nbsp;
+      <span id="site-view-count">—</span>
+    </div>
+  </footer>
 
   <!-- ── Fullscreen interactive map ── -->
   <div class="map-modal" id="map-modal" onclick="closeMapModal(event)">
