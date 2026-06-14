@@ -193,22 +193,23 @@
       position: absolute;
       top: 0;
       height: 100%;
-      width: 32%;
+      width: 42%;
       object-fit: cover;
-      object-position: center 15%;
       pointer-events: none;
       user-select: none;
-      opacity: 0.72;
+      opacity: 0.58;
     }
     .welcome-photo.left {
       left: 0;
-      -webkit-mask-image: linear-gradient(to right, black 0%, black 25%, transparent 88%);
-      mask-image: linear-gradient(to right, black 0%, black 25%, transparent 88%);
+      object-position: 60% 15%;
+      -webkit-mask-image: linear-gradient(to right, black 0%, black 30%, transparent 92%);
+      mask-image: linear-gradient(to right, black 0%, black 30%, transparent 92%);
     }
     .welcome-photo.right {
       right: 0;
-      -webkit-mask-image: linear-gradient(to left, black 0%, black 25%, transparent 88%);
-      mask-image: linear-gradient(to left, black 0%, black 25%, transparent 88%);
+      object-position: 25% 15%;
+      -webkit-mask-image: linear-gradient(to left, black 0%, black 30%, transparent 92%);
+      mask-image: linear-gradient(to left, black 0%, black 30%, transparent 92%);
     }
     @media (max-width: 860px) { .welcome-photo { display: none; } }
 
@@ -1321,6 +1322,14 @@
       color: var(--dark-brown);
     }
 
+    .map-save-hint {
+      text-align: center;
+      font-size: 0.7rem; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.8rem;
+    }
+
     /* Fullscreen interactive map modal */
     .map-modal {
       display: none;
@@ -1364,16 +1373,6 @@
       transition: background 0.2s, color 0.2s;
     }
     .map-modal-gmaps-btn:hover { background: var(--gold); color: var(--parchment); }
-    .map-gmaps-link {
-      display: inline-flex; align-items: center; gap: 5px;
-      margin-top: 9px;
-      font-size: 0.65rem; font-weight: 600;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--gold); text-decoration: none;
-      transition: color 0.2s;
-    }
-    .map-gmaps-link:hover { color: var(--dark-brown); }
-
     /* ── Site footer ── */
     .site-footer {
       position: relative;
@@ -2539,12 +2538,13 @@
        PAGE 4 — MAP
   ════════════════════════════════════════ -->
   <div class="page" id="page-map">
-    <div class="sub-wrap">
+    <div class="adv-wrap">
       <div class="sub-header">
         <p class="sub-eyebrow" data-i18n="map-eyebrow">✦ &nbsp; The Route &nbsp; ✦</p>
         <h2 class="sub-title" data-i18n="map-title">Where I've Been</h2>
         <p class="sub-sub" data-i18n="map-sub">Pins dropped around the globe</p>
       </div>
+      <p class="map-save-hint">Click any card to explore the map — you can save locations straight from Google Maps.</p>
       <div class="map-grid">
 
         <div class="map-card" onclick="openMapModal('mallorca')">
@@ -4446,11 +4446,8 @@
     function _gmapsEmbedUrl(id) {
       const t = TRIPS_MAP[id];
       if (!t || !t.markers.length) return '';
-      const lats = t.markers.map(function(m) { return m[1]; });
-      const lngs = t.markers.map(function(m) { return m[2]; });
-      const lat = lats.reduce(function(a, b) { return a + b; }, 0) / lats.length;
-      const lng = lngs.reduce(function(a, b) { return a + b; }, 0) / lngs.length;
-      return 'https://maps.google.com/maps?q=' + lat.toFixed(4) + ',' + lng.toFixed(4)
+      const m0 = t.markers[0];
+      return 'https://maps.google.com/maps?q=' + m0[1].toFixed(4) + ',' + m0[2].toFixed(4)
            + '&z=' + (t.zoom || 12) + '&output=embed&hl=en';
     }
     function _gmapsOpenUrl(id) {
@@ -4468,7 +4465,7 @@
     }
 
     const TRIPS_MAP = {
-      california: { zoom: 6, markers: [
+      california: { zoom: 10, markers: [
         ['Los Angeles', 34.0522, -118.2437],
         ['San Francisco', 37.7749, -122.4194],
         ['Grand Canyon', 36.1069, -112.1129],
@@ -4490,8 +4487,8 @@
         ['Koh Samui', 9.5120, 100.0136],
         ['Koh Phangan', 9.7500, 100.0200]
       ]},
-      maldives: { zoom: 13, markers: [
-        ['Dhiffushi Island', 4.4419, 73.7289]
+      maldives: { zoom: 14, markers: [
+        ['Dhiffushi', 4.3333, 73.5667]
       ]},
       mallorca: { zoom: 9, markers: [
         ['Palma de Mallorca', 39.5696, 2.6502]
@@ -4509,9 +4506,9 @@
         ['Copenhagen', 55.6761, 12.5683],
         ['Nyhavn', 55.6793, 12.5903]
       ]},
-      sicily: { zoom: 8, markers: [
-        ['Palermo', 38.1157, 13.3615],
+      sicily: { zoom: 12, markers: [
         ['Catania', 37.5079, 15.0830],
+        ['Palermo', 38.1157, 13.3615],
         ['Etna', 37.7510, 14.9934],
         ['Taormina', 37.8516, 15.2890]
       ]},
@@ -4519,13 +4516,14 @@
         ['Edinburgh', 55.9533, -3.1883],
         ["Arthur's Seat", 55.9444, -3.1619]
       ]},
-      amalfi: { zoom: 11, markers: [
+      amalfi: { zoom: 13, markers: [
         ['Amalfi', 40.6340, 14.6027],
         ['Positano', 40.6282, 14.4847],
         ['Ravello', 40.6464, 14.6147],
         ['Sorrento', 40.6263, 14.3757]
       ]},
-      newengland: { zoom: 7, markers: [
+      newengland: { zoom: 12, markers: [
+        ['Providence', 41.8240, -71.4128],
         ['Boston', 42.3601, -71.0589],
         ['Salem', 42.5195, -70.8967],
         ['Newport', 41.4901, -71.3128],
@@ -4554,7 +4552,7 @@
         ['Bruges', 51.2093, 3.2247],
         ['Ghent', 51.0543, 3.7174]
       ]},
-      poland: { zoom: 6, markers: [
+      poland: { zoom: 12, markers: [
         ['Warsaw', 52.2297, 21.0122],
         ['Kraków', 50.0647, 19.9450],
         ['Gdańsk', 54.3520, 18.6466],
@@ -4577,21 +4575,6 @@
         const el = document.getElementById('mini-' + id);
         if (!el || el.getAttribute('src')) return; // skip if already loaded
         el.src = _gmapsEmbedUrl(id);
-        // Inject "Save in Google Maps" link into the card's .map-info
-        const card = el.closest ? el.closest('.map-card') : null;
-        if (card && !card.querySelector('.map-gmaps-link')) {
-          const info = card.querySelector('.map-info');
-          if (info) {
-            const a = document.createElement('a');
-            a.className = 'map-gmaps-link';
-            a.href = _gmapsOpenUrl(id);
-            a.target = '_blank';
-            a.rel = 'noopener';
-            a.textContent = '📍 Save in Google Maps';
-            a.addEventListener('click', function(e) { e.stopPropagation(); });
-            info.appendChild(a);
-          }
-        }
       });
     }
     function onMapShown() {
