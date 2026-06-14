@@ -3482,7 +3482,6 @@
     }
 
     /* ── Navigation ── */
-    let _histNav = false; // true while handling popstate — prevents openTrip double-pushing
 
     function toggleNavMenu() {
       document.getElementById('nav-dropdown').classList.toggle('open');
@@ -3496,38 +3495,40 @@
       if (wrap && !wrap.contains(e.target)) closeNavMenu();
     });
 
-    function showPage(id) {
+    // DOM-only: switches the visible page tab and closes any open trip.
+    // Never touches location.hash — called by the hashchange listener and
+    // by showPage (which updates the hash first).
+    function _applyPage(id) {
       closeNavMenu();
-      // Always reset the Adventures tab back to the card grid on any navigation
       if (typeof closeTripDetail === 'function') closeTripDetail();
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-      document.getElementById('page-' + id).classList.add('active');
-      document.querySelector(`.nav-link[data-page="${id}"]`).classList.add('active');
+      const page = document.getElementById('page-' + id);
+      const link = document.querySelector('.nav-link[data-page="' + id + '"]');
+      if (page) page.classList.add('active');
+      if (link) link.classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      // Push a history entry for every page change so the browser back/forward
-      // arrows step through visited pages. Skip when we're *responding* to a
-      // back/forward press (_histNav), or when this page is already current —
-      // otherwise popstate would re-push and corrupt history (the old "needs a
-      // double click" bug).
-      if (!_histNav) {
-        const s = history.state;
-        if (!s || s.trip || s.page !== id) {
-          try { history.pushState({ page: id }, ''); } catch (_) {}
-        }
-      }
     }
 
-    window.addEventListener('popstate', function (e) {
-      _histNav = true;
-      const state = e.state;
-      if (state && state.trip) {
-        openTrip(state.trip);
+    // Public navigation: update DOM, then push a hash entry so the browser
+    // back/forward arrows work. Hash navigation works on file://, http://,
+    // and https:// with no security restrictions — unlike pushState/popstate.
+    function showPage(id) {
+      _applyPage(id);
+      const h = '#page=' + id;
+      if (location.hash !== h) location.hash = h;
+    }
+
+    // hashchange fires when the hash changes via browser back/forward OR our
+    // own location.hash assignments. Calls DOM-only helpers — never sets the
+    // hash — so there is no risk of an infinite loop.
+    window.addEventListener('hashchange', function() {
+      const h = location.hash.slice(1); // e.g. "page=adventures" or "trip=milan"
+      if (h.startsWith('trip=')) {
+        _applyTrip(h.slice(5));
       } else {
-        if (typeof closeTripDetail === 'function') closeTripDetail();
-        showPage((state && state.page) || 'welcome');
+        _applyPage(h.startsWith('page=') ? h.slice(5) : 'welcome');
       }
-      _histNav = false;
     });
 
     /* ═══════════════════════════════════════════════════════════
@@ -3781,8 +3782,9 @@
 
     let tripSourcePage = 'adventures';
 
-    function openTrip(id) {
-      // Remember which page we came from
+    // DOM-only: opens the trip detail panel. Never touches location.hash —
+    // called by the hashchange listener and by openTrip.
+    function _applyTrip(id) {
       const activeEl = document.querySelector('.page.active');
       tripSourcePage = activeEl ? activeEl.id.replace('page-', '') : 'adventures';
 
@@ -3809,12 +3811,13 @@
       renderTripGallery(id);
       refreshWatchButtons();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      if (!_histNav) {
-        const s = history.state;
-        if (!s || s.trip !== id) {
-          try { history.pushState({ page: tripSourcePage, trip: id }, ''); } catch (_) {}
-        }
-      }
+    }
+
+    // Public navigation: update DOM, then push a hash entry.
+    function openTrip(id) {
+      _applyTrip(id);
+      const h = '#trip=' + id;
+      if (location.hash !== h) location.hash = h;
     }
 
     /* Show the vlog inline (or a friendly note if there isn't one) */
@@ -4377,8 +4380,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', async function () {
-      /* Seed the initial history entry so the back button never exits the site cold. */
-      try { history.replaceState({ page: 'welcome' }, ''); } catch (_) {}
+      /* Handle deep-link hashes (bookmarks / shared links, e.g. #trip=milan). */
+      const _initHash = location.hash.slice(1);
+      if (_initHash.startsWith('trip=')) { _applyPage('adventures'); _applyTrip(_initHash.slice(5)); }
+      else if (_initHash.startsWith('page=')) { _applyPage(_initHash.slice(5)); }
+      /* else: welcome is already active from HTML */
 
       /* Restore owner mode if a Supabase login session is still active. */
       const sess = await sb.auth.getSession();
