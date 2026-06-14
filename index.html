@@ -187,6 +187,31 @@
     /* ════════════════════════════════════════
        PAGE 1 — WELCOME
     ════════════════════════════════════════ */
+    #page-welcome { position: relative; overflow: hidden; }
+
+    .welcome-photo {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 32%;
+      object-fit: cover;
+      object-position: center 15%;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.72;
+    }
+    .welcome-photo.left {
+      left: 0;
+      -webkit-mask-image: linear-gradient(to right, black 0%, black 25%, transparent 88%);
+      mask-image: linear-gradient(to right, black 0%, black 25%, transparent 88%);
+    }
+    .welcome-photo.right {
+      right: 0;
+      -webkit-mask-image: linear-gradient(to left, black 0%, black 25%, transparent 88%);
+      mask-image: linear-gradient(to left, black 0%, black 25%, transparent 88%);
+    }
+    @media (max-width: 860px) { .welcome-photo { display: none; } }
+
     .welcome-wrap {
       position: relative;
       z-index: 1;
@@ -1505,6 +1530,8 @@
        PAGE 1 — WELCOME
   ════════════════════════════════════════ -->
   <div class="page active" id="page-welcome">
+    <img src="welcome-left.jpg" alt="" class="welcome-photo left">
+    <img src="welcome-right.jpg" alt="" class="welcome-photo right">
     <div class="welcome-wrap">
 
       <div class="w-deco">
