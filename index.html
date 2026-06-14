@@ -761,6 +761,16 @@
       transition: color 0.2s, border-color 0.2s;
     }
     .trip-map-link:hover { color: var(--gold); border-color: var(--gold); }
+    .trip-playlist-link {
+      display: none; /* shown by JS when a playlist exists for this trip */
+      align-items: center; gap: 0.4rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+      letter-spacing: 0.04em; color: var(--brown);
+      border-bottom: 1px solid var(--beige);
+      padding-bottom: 2px; cursor: pointer; margin-bottom: 2.6rem; margin-left: 1.4rem;
+      transition: color 0.2s, border-color 0.2s; background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .trip-playlist-link:hover { color: var(--gold); border-color: var(--gold); }
     /* Sections inside a trip folder */
     .trip-section { margin-bottom: 3rem; }
     .trip-section-title {
@@ -2390,8 +2400,9 @@
           <p class="trip-detail-desc" id="td-desc"></p>
         </div>
 
-        <!-- See it on the map -->
+        <!-- See it on the map / hear how it sounded -->
         <a class="trip-map-link" id="td-map-btn" onclick="goToMap()" data-i18n="td-maplink">📍 See where it was on the map →</a>
+        <button class="trip-playlist-link" id="td-playlist-btn" onclick="goToTripPlaylist()">🎵 Hear how it sounded →</button>
 
         <!-- The vlog (plays right here) -->
         <div class="trip-section" id="td-video-section">
@@ -2487,116 +2498,204 @@
       </div>
       <div class="map-grid">
 
-
         <div class="map-card" onclick="openMapModal('mallorca')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-mallorca"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2026 &nbsp;·&nbsp; Spain</div>
+            <h3 class="map-title">🏖️ &nbsp; Mallorca</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('maldives')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-maldives"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2026 &nbsp;·&nbsp; Maldives</div>
+            <h3 class="map-title">🐠 &nbsp; Maldives</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('paris')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-paris"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &amp; 2026 &nbsp;·&nbsp; France</div>
+            <h3 class="map-title">🗼 &nbsp; Paris</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('brussels')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-brussels"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2022–2026 &nbsp;·&nbsp; Belgium</div>
+            <h3 class="map-title">🧇 &nbsp; Brussels</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('vienna')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-vienna"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2025 &nbsp;·&nbsp; Austria</div>
+            <h3 class="map-title">☕ &nbsp; Vienna</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('thailand')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-thailand"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2025 &nbsp;·&nbsp; Thailand</div>
+            <h3 class="map-title">🛵 &nbsp; Thailand</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('milan')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-milan"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &amp; 2025 &nbsp;·&nbsp; Italy</div>
+            <h3 class="map-title">🎨 &nbsp; Milan</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('newengland')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-newengland"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2019 &amp; 2025 &nbsp;·&nbsp; USA</div>
+            <h3 class="map-title">🍂 &nbsp; New England</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('newyork')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-newyork"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2018–2025 &nbsp;·&nbsp; USA</div>
+            <h3 class="map-title">🗽 &nbsp; New York</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('amalfi')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-amalfi"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2024 &nbsp;·&nbsp; Italy</div>
+            <h3 class="map-title">🍋 &nbsp; Amalfi Coast</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('california')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-california"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &nbsp;·&nbsp; USA</div>
+            <h3 class="map-title">🌅 &nbsp; California</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('rome')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-rome"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &nbsp;·&nbsp; Italy</div>
+            <h3 class="map-title">🏺 &nbsp; Rome</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('copenhagen')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-copenhagen"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &nbsp;·&nbsp; Denmark</div>
+            <h3 class="map-title">🧁 &nbsp; Copenhagen</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('sicily')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-sicily"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &nbsp;·&nbsp; Italy</div>
+            <h3 class="map-title">🌋 &nbsp; Sicily</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('edinburgh')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-edinburgh"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2023 &nbsp;·&nbsp; Scotland</div>
+            <h3 class="map-title">🏰 &nbsp; Edinburgh</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('rhodes')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-rhodes"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">2020 &nbsp;·&nbsp; Greece</div>
+            <h3 class="map-title">🏛️ &nbsp; Rhodes</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('poland')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-poland"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">Photo Diary &nbsp;·&nbsp; Poland</div>
+            <h3 class="map-title">🌲 &nbsp; Poland</h3>
+          </div>
+        </div>
 
         <div class="map-card" onclick="openMapModal('berlin')">
           <div class="map-mini">
             <div class="map-mini-canvas" id="mini-berlin"></div>
             <span class="map-open">Open map ↗</span>
           </div>
+          <div class="map-info">
+            <div class="map-badge">Photo Diary &nbsp;·&nbsp; Germany</div>
+            <h3 class="map-title">🎸 &nbsp; Berlin</h3>
+          </div>
+        </div>
 
-      
       </div>
     </div>
   </div>
@@ -3470,6 +3569,8 @@
       document.getElementById('td-title').textContent = t.title[lang] || t.title.en;
       document.getElementById('td-desc').textContent  = t.desc[lang]  || t.desc.en;
       setTripVideo(id);
+      const plBtn = document.getElementById('td-playlist-btn');
+      if (plBtn) plBtn.style.display = TRIP_PLAYLISTS[id] ? 'inline-flex' : 'none';
       if (twoLivesOpen) {
         document.getElementById('two-lives-view').classList.remove('open');
       } else {
@@ -3516,6 +3617,20 @@
     }
 
     function goToMap() { showPage('map'); }
+
+    /* Trip IDs that have a playlist in the Playlists tab */
+    const TRIP_PLAYLISTS = { california: 'california', mallorca: 'mallorca' };
+
+    function goToTripPlaylist() {
+      const plId = TRIP_PLAYLISTS[currentTripId];
+      if (!plId) return;
+      showPage('playlists');
+      const item = document.getElementById('pl-' + plId);
+      if (item) {
+        item.classList.add('open');
+        setTimeout(function () { item.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+      }
+    }
 
     function renderTripGallery(id) {
       const all    = loadTripPhotos();
