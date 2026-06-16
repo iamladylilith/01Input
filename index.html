@@ -638,9 +638,9 @@
       position: absolute;
       bottom: 5px; left: 0;
       opacity: 0.65;
-      transform: translateX(-30px) rotate(90deg); /* parked off-screen left */
+      transform: translateX(-30px) rotate(90deg);
     }
-    .w-cta:hover .w-plane { animation: planeFly 2.5s linear infinite; }
+    .w-cta:hover .w-plane { animation: planeFly 6s linear infinite; }
     .w-star {
       position: absolute;
       left: 0;
@@ -650,12 +650,17 @@
       pointer-events: none;
       line-height: 1;
     }
-    .w-cta:hover .w-star { animation: starTrail 2.5s linear infinite; }
-    .w-star-1 { bottom: 5px;  font-size: 7px;   animation-delay: 0.22s; }
-    .w-star-2 { bottom: 9px;  font-size: 5px;   animation-delay: 0.44s; }
-    .w-star-3 { bottom: 3px;  font-size: 5px;   animation-delay: 0.66s; }
-    .w-star-4 { bottom: 8px;  font-size: 4px;   animation-delay: 0.88s; }
-    .w-star-5 { bottom: 6px;  font-size: 4.5px; animation-delay: 1.1s;  }
+    .w-star-1 { bottom: 5px;  font-size: 7px; }
+    .w-star-2 { bottom: 9px;  font-size: 5px; }
+    .w-star-3 { bottom: 3px;  font-size: 5px; }
+    .w-star-4 { bottom: 8px;  font-size: 4px; }
+    .w-star-5 { bottom: 6px;  font-size: 4.5px; }
+    .w-cta:hover .w-star   { animation: starTrail 6s linear infinite; }
+    .w-cta:hover .w-star-1 { animation-delay: 0.5s; }
+    .w-cta:hover .w-star-2 { animation-delay: 1.0s; }
+    .w-cta:hover .w-star-3 { animation-delay: 1.5s; }
+    .w-cta:hover .w-star-4 { animation-delay: 2.0s; }
+    .w-cta:hover .w-star-5 { animation-delay: 2.5s; }
     @keyframes planeFly {
       from { transform: translateX(-30px) rotate(90deg); }
       to   { transform: translateX(500px) rotate(90deg); }
@@ -834,7 +839,7 @@
     }
     .trip-detail-desc {
       font-size: 0.95rem; color: var(--brown);
-      line-height: 1.85; font-weight: 300; max-width: 560px;
+      line-height: 1.85; font-weight: 300;
     }
     /* "See it on the map" link */
     .trip-map-link {
