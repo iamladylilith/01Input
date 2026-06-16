@@ -3299,14 +3299,14 @@
   <!-- ── Rude cat overlay (rating = 1) ── -->
   <div class="cat-overlay" id="rude-overlay" onclick="closeRude()">
     <img src="cat-rude.png" alt="rude cat" />
-    <p class="cat-caption">really? a 1??</p>
-    <button class="cat-dismiss" onclick="closeRude()">ok ok, changing it</button>
+    <p class="cat-caption" data-i18n="rude-caption">really? a 1??</p>
+    <button class="cat-dismiss" onclick="closeRude()" data-i18n="rude-dismiss">ok ok, changing it</button>
   </div>
 
   <!-- ── Kitty love overlay (rating = 10) ── -->
   <div class="happy-overlay" id="kitty-overlay" onclick="closeKitty()">
     <img src="kitty-love.png" alt="kitty love" />
-    <p class="happy-caption">10/10 taste 🫶</p>
+    <p class="happy-caption" data-i18n="kitty-caption">10/10 taste 🫶</p>
   </div>
 
   <!-- ── Owner mode toggle (only you use this) ── -->
@@ -3374,6 +3374,7 @@
         'photo-one': 'photo', 'photo-many': 'photos',
         'outfit-rate': 'Rate this outfit', 'btn-remove': 'Remove',
         'cat-caption': 'how about we try that again, huh?', 'cat-dismiss': 'ok fine, let me reconsider', 'happy-caption': 'YAY!!',
+        'rude-caption': 'really? a 1??', 'rude-dismiss': 'ok ok, changing it', 'kitty-caption': '10/10 taste 🫶',
         'outfits-drop': 'Drop a photo here<br>or click to browse', 'outfits-change': 'Change photo', 'outfits-addbtn': 'Add outfit',
         'ph-outfit-name': 'Outfit name (e.g. Koh Samui Look)', 'ph-outfit-loc': 'Location', 'ph-outfit-year': 'Year',
         'ph-outfit-pieces': 'Where are the pieces from? (optional &mdash; e.g. Top: Zara &middot; Jeans: Mango)',
@@ -3407,6 +3408,7 @@
         'photo-one': 'zdj&eogon;cie', 'photo-many': 'zdj&eogon;&cacute;',
         'outfit-rate': 'Oce&nacute; t&eogon; stylizacj&eogon;', 'btn-remove': 'Usu&nacute;',
         'cat-caption': 'hm, może jeszcze raz?', 'cat-dismiss': 'ok ok, przemyślę', 'happy-caption': 'TAK!!',
+        'rude-caption': 'serio? jedynka??', 'rude-dismiss': 'ok ok, zmieniam', 'kitty-caption': '10/10 gustu 🫶',
         'outfits-drop': 'Przeci&aogon;gnij zdj&eogon;cie tutaj<br>lub kliknij, aby wybra&cacute;', 'outfits-change': 'Zmie&nacute; zdj&eogon;cie', 'outfits-addbtn': 'Dodaj stylizacj&eogon;',
         'ph-outfit-name': 'Nazwa stylizacji (np. Look z Koh Samui)', 'ph-outfit-loc': 'Lokalizacja', 'ph-outfit-year': 'Rok',
         'ph-outfit-pieces': 'Sk&aogon;d s&aogon; poszczeg&oacute;lne cz&eogon;&sacute;ci? (opcjonalnie &mdash; np. G&oacute;ra: Zara &middot; Jeansy: Mango)',
@@ -3440,6 +3442,7 @@
         'photo-one': 'photo', 'photo-many': 'photos',
         'outfit-rate': 'Note cette tenue', 'btn-remove': 'Supprimer',
         'cat-caption': 'et si on réessayait, hein ?', 'cat-dismiss': 'ok ok, je reconsidère', 'happy-caption': 'OUI !!',
+        'rude-caption': 'vraiment ? un 1 ??', 'rude-dismiss': 'ok ok, je change', 'kitty-caption': '10/10 style 🫶',
         'outfits-drop': 'D&eacute;pose une photo ici<br>ou clique pour parcourir', 'outfits-change': 'Changer la photo', 'outfits-addbtn': 'Ajouter la tenue',
         'ph-outfit-name': 'Nom de la tenue (ex. Look de Koh Samui)', 'ph-outfit-loc': 'Lieu', 'ph-outfit-year': 'Ann&eacute;e',
         'ph-outfit-pieces': 'D\'o&ugrave; viennent les pi&egrave;ces ? (optionnel &mdash; ex. Haut : Zara &middot; Jean : Mango)',
@@ -3473,6 +3476,7 @@
         'photo-one': 'Foto', 'photo-many': 'Fotos',
         'outfit-rate': 'Bewerte dieses Outfit', 'btn-remove': 'Entfernen',
         'cat-caption': 'nochmal, oder ?', 'cat-dismiss': 'ok, ich &uuml;berlege nochmal', 'happy-caption': 'JA !!',
+        'rude-caption': 'wirklich? eine 1??', 'rude-dismiss': 'ok ok, ich &auml;ndere es', 'kitty-caption': '10/10 Geschmack 🫶',
         'outfits-drop': 'Foto hier ablegen<br>oder zum Durchsuchen klicken', 'outfits-change': 'Foto &auml;ndern', 'outfits-addbtn': 'Outfit hinzuf&uuml;gen',
         'ph-outfit-name': 'Outfit-Name (z.B. Koh Samui Look)', 'ph-outfit-loc': 'Ort', 'ph-outfit-year': 'Jahr',
         'ph-outfit-pieces': 'Woher sind die Teile? (optional &mdash; z.B. Oben: Zara &middot; Jeans: Mango)',
@@ -3506,6 +3510,7 @@
         'photo-one': 'foto', 'photo-many': 'foto',
         'outfit-rate': 'Vota questo outfit', 'btn-remove': 'Rimuovi',
         'cat-caption': 'e se riprovassimo, eh ?', 'cat-dismiss': 'ok ok, ci ripenso', 'happy-caption': 'S&Igrave; !!',
+        'rude-caption': 'davvero? un 1??', 'rude-dismiss': 'ok ok, cambio', 'kitty-caption': 'gusto 10/10 🫶',
         'outfits-drop': 'Trascina una foto qui<br>o clicca per sfogliare', 'outfits-change': 'Cambia foto', 'outfits-addbtn': 'Aggiungi outfit',
         'ph-outfit-name': 'Nome dell\'outfit (es. Look di Koh Samui)', 'ph-outfit-loc': 'Luogo', 'ph-outfit-year': 'Anno',
         'ph-outfit-pieces': 'Da dove vengono i capi? (facoltativo &mdash; es. Top: Zara &middot; Jeans: Mango)',
@@ -3539,6 +3544,7 @@
         'photo-one': 'foto', 'photo-many': 'fotos',
         'outfit-rate': 'Valora este look', 'btn-remove': 'Eliminar',
         'cat-caption': '¿y si lo intentamos de nuevo, eh ?', 'cat-dismiss': 'ok, lo reconsidera', 'happy-caption': '¡SÍ !!',
+        'rude-caption': '¿en serio? ¿un 1??', 'rude-dismiss': 'ok ok, lo cambio', 'kitty-caption': 'gusto 10/10 🫶',
         'outfits-drop': 'Arrastra una foto aqu&iacute;<br>o haz clic para explorar', 'outfits-change': 'Cambiar foto', 'outfits-addbtn': 'A&ntilde;adir look',
         'ph-outfit-name': 'Nombre del look (ej. Look de Koh Samui)', 'ph-outfit-loc': 'Ubicaci&oacute;n', 'ph-outfit-year': 'A&ntilde;o',
         'ph-outfit-pieces': '&iquest;De d&oacute;nde son las prendas? (opcional &mdash; ej. Top: Zara &middot; Vaqueros: Mango)',
