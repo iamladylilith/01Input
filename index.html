@@ -15,7 +15,7 @@
   <title>Patricia's Travels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -253,6 +253,9 @@
     ════════════════════════════════════════ */
     #page-welcome { position: relative; overflow: hidden; }
 
+    /* welcome-photo is a frame (div) that holds the image + overlay layers
+       (sunshine in light mode, blinking stars in dark mode); the edge-fade
+       mask lives on the frame so the overlays fade at the edges too */
     .welcome-photo {
       position: absolute;
       top: 0;
@@ -260,14 +263,20 @@
          it grows #page-welcome, and height:100% would scale with it */
       height: 100vh;
       width: 42%;
-      object-fit: cover;
       pointer-events: none;
       user-select: none;
       opacity: 0.58;
+      overflow: hidden;
+    }
+    .welcome-photo .wp-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .welcome-photo.left {
       left: 0;
-      object-position: 60% 15%;
       -webkit-mask-image:
         linear-gradient(to right, black 0%, black 30%, transparent 92%),
         linear-gradient(to bottom, black 0%, black 78%, transparent 100%);
@@ -277,9 +286,9 @@
         linear-gradient(to bottom, black 0%, black 78%, transparent 100%);
       mask-composite: intersect;
     }
+    .welcome-photo.left .wp-img { object-position: 60% 15%; }
     .welcome-photo.right {
       right: 0;
-      object-position: 25% 15%;
       -webkit-mask-image:
         linear-gradient(to left, black 0%, black 30%, transparent 92%),
         linear-gradient(to bottom, black 0%, black 78%, transparent 100%);
@@ -289,10 +298,31 @@
         linear-gradient(to bottom, black 0%, black 78%, transparent 100%);
       mask-composite: intersect;
     }
+    .welcome-photo.right .wp-img { object-position: 25% 15%; }
     @media (max-width: 860px) { .welcome-photo { display: none; } }
     .welcome-photo.dark-only { display: none; }
     html.dark-mode .welcome-photo.light-only { display: none; }
     html.dark-mode .welcome-photo.dark-only { display: block; }
+
+    /* ── welcome-photo star overlay ────────────── */
+    /* scattered blinking stars (dark-mode photos) */
+    .wp-stars { position: absolute; inset: 0; pointer-events: none; }
+    .wp-star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 5px 1px rgba(255,255,255,0.85);
+      opacity: 0;
+      animation: wpTwinkle 3s ease-in-out infinite;
+    }
+    @keyframes wpTwinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50%      { opacity: 0.95; transform: scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wp-star { animation: none; }
+    }
 
     .welcome-wrap {
       position: relative;
@@ -1138,6 +1168,143 @@
       margin-bottom: 1.25rem;
       font-weight: 300;
     }
+
+    /* ════════════════════════════════════════
+       Adventures = boarding passes (scoped to #video-grid;
+       Homes #homes-grid keeps the old .video-card look)
+    ════════════════════════════════════════ */
+    #video-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 26px 20px;
+      align-items: stretch;
+      /* widen past the 1060px wrap so three passes fill the screen width */
+      width: min(1720px, 96vw);
+      margin-left: 50%;
+      transform: translateX(-50%);
+    }
+    @media (max-width: 1080px) {
+      #video-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; margin-left: 0; transform: none; }
+    }
+    @media (max-width: 720px) { #video-grid { grid-template-columns: 1fr; } }
+
+    .bp {
+      --bp-accent: #b98a4b;
+      position: relative;
+      display: flex;
+      min-height: 236px;
+      background: var(--parchment);
+      color: var(--dark-brown);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(61,32,16,0.10);
+      overflow: hidden;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .bp:hover { transform: translateY(-5px); box-shadow: 0 22px 50px rgba(61,32,16,0.17); }
+    .bp:focus-visible { outline: 2px solid var(--bp-accent); outline-offset: 3px; }
+    html.dark-mode .bp { border-color: rgba(255,255,255,0.10); }
+
+    .bp-main {
+      flex: 1 1 auto; min-width: 0;
+      display: flex; flex-direction: column;
+      padding: 16px 20px 14px;
+    }
+    .bp-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      border-bottom: 1.5px solid color-mix(in srgb, var(--bp-accent) 55%, transparent);
+      padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .bp-airline { font-weight: 700; font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: var(--bp-accent); white-space: nowrap; }
+    .bp-kind { font-size: .56rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+
+    .bp-route { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+    .bp-code { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.35rem; letter-spacing: .03em; color: var(--bp-accent); line-height: 1; }
+    .bp .bp-dest { font-family: 'Playfair Display', serif; font-size: 1.04rem; font-weight: 600; line-height: 1.2; color: var(--dark-brown); margin: 0; }
+    .bp .bp-badge { color: var(--bp-accent); margin: 0 0 8px; }
+    .bp .bp-desc {
+      font-size: .8rem; line-height: 1.55; color: var(--text-muted); font-weight: 300; margin: 0 0 12px;
+    }
+    .bp-vlog {
+      align-self: flex-start; margin-bottom: 10px;
+      font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+      color: var(--bp-accent); border: 1px solid color-mix(in srgb, var(--bp-accent) 45%, transparent);
+      border-radius: 999px; padding: 3px 9px;
+    }
+    .bp-foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+    .bp-foot-grid { display: grid; grid-template-columns: auto auto; gap: 1px 10px; align-content: end; }
+    .bp-k { font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); align-self: center; }
+    .bp-v { font-size: .72rem; font-weight: 700; color: var(--dark-brown); font-variant-numeric: tabular-nums; }
+    .bp-barcode {
+      height: 32px; width: 92px; opacity: .82;
+      background: repeating-linear-gradient(90deg, var(--dark-brown) 0 2px, transparent 2px 4px, var(--dark-brown) 4px 5px, transparent 5px 8px);
+    }
+
+    /* tear-off stub with punched perforation + passport stamps */
+    .bp-stub {
+      position: relative; flex: 0 0 36%; max-width: 212px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 15px 12px;
+      border-left: 2px dashed color-mix(in srgb, var(--bp-accent) 50%, transparent);
+      background:
+        radial-gradient(circle at left top,    var(--cream) 8px, transparent 9px) left top / 20px 20px no-repeat,
+        radial-gradient(circle at left bottom, var(--cream) 8px, transparent 9px) left bottom / 20px 20px no-repeat,
+        color-mix(in srgb, var(--bp-accent) 11%, var(--parchment));
+    }
+    .bp-stub-label { font-size: .52rem; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); font-weight: 600; text-align: center; }
+    .bp-stamps { position: relative; flex: 1 1 auto; width: 100%; min-height: 138px; }
+    /* passport / airport ink-stamp: SVG outline (any shape) + pressed-ink text */
+    .bp-stamp {
+      position: absolute; width: var(--size, 90px); height: var(--size, 90px);
+      transform: rotate(var(--rot, 0deg)); opacity: .6; mix-blend-mode: multiply;
+      color: var(--ink); font-size: calc(var(--size, 90px) * 0.135);
+    }
+    .bp-stamp-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .bp-stamp-frame * { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round; }
+    .bp-stamp-frame .bp-stamp-inring { stroke-width: 1.3; }
+    .bp-stamp-text {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; line-height: 1.05;
+      padding: 0 6%;
+    }
+    .bp-stamp--triangle .bp-stamp-text { justify-content: flex-end; padding-bottom: 11%; }
+    .bp-stamp--rect .bp-stamp-text, .bp-stamp--oval .bp-stamp-text { padding: 0 12%; }
+    .bp-stamp-top { display: flex; align-items: center; gap: .35em; }
+    .bp-stamp-plane { font-size: .82em; line-height: 1; }
+    .bp-stamp-sub { font-size: .5em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .bp-stamp-country { font-size: 1em; font-weight: 800; letter-spacing: .01em; text-transform: uppercase; margin-top: .18em; max-width: 100%; line-height: 1; }
+    .bp-stamp-date  { font-size: .56em; letter-spacing: .03em; margin-top: .22em; }
+    .bp-barcode--v { width: 74%; height: 22px; margin-top: 2px; }
+    html.dark-mode .bp-stamp {
+      mix-blend-mode: screen; opacity: .72;
+      color: color-mix(in srgb, var(--ink) 55%, #ffffff);
+    }
+    html.dark-mode .bp-stamp-frame * { stroke: color-mix(in srgb, var(--ink) 55%, #ffffff); }
+
+    /* ── variant: classic (solid accent header bar) ── */
+    .bp--classic .bp-head { background: var(--bp-accent); margin: -16px -20px 12px; padding: 10px 20px; border: 0; }
+    .bp--classic .bp-airline { color: #fff; }
+    .bp--classic .bp-kind { color: rgba(255,255,255,.85); }
+
+    /* ── variant: mono (minimal, accent rule only) ── */
+    .bp--mono .bp-head { border-bottom-color: color-mix(in srgb, var(--dark-brown) 16%, transparent); }
+    .bp--mono .bp-airline { color: var(--dark-brown); font-weight: 600; }
+    .bp--mono .bp-code { color: var(--dark-brown); }
+    .bp--mono .bp-main { border-left: 3px solid var(--bp-accent); padding-left: 17px; }
+    .bp--mono .bp-stub { border-left-style: dotted; }
+
+    /* ── variant: ticket (boxed code, thick accent spine) ── */
+    .bp--ticket .bp-main { border-left: 6px solid var(--bp-accent); padding-left: 18px; }
+    .bp--ticket .bp-code { background: var(--bp-accent); color: #fff; font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 700; padding: 2px 9px; border-radius: 4px; letter-spacing: .06em; }
+    .bp--ticket .bp-head { text-transform: uppercase; }
+
+    @media (max-width: 420px) {
+      .bp-stub { flex-basis: 38%; }
+      .bp-code { font-size: 1.3rem; }
+      .bp .bp-dest { font-size: 1rem; }
+    }
+
     .video-btn {
       font-family: 'DM Sans', sans-serif;
       font-size: 0.68rem;
@@ -1707,6 +1874,81 @@
     .nav-dropdown .nav-link::after { display: none; }
     .nav-dropdown .nav-link:hover,
     .nav-dropdown .nav-link.active { background: rgba(200,144,60,0.06); }
+    /* ═══════════════════════════════════════
+       ABOUT ME — Digital Passport (single horizontal bio-data page)
+    ═══════════════════════════════════════ */
+    .passport { max-width: 860px; margin: 6px auto 36px; padding: 16px 14px 0; }
+
+    /* the passport card (landscape) */
+    .pp-pass {
+      position: relative;
+      width: min(760px, 96vw);
+      margin: 0 auto;
+      padding: 20px 26px 16px;
+      background:
+        radial-gradient(130% 120% at 50% 0%, rgba(255,250,238,0.5), transparent 62%),
+        repeating-linear-gradient(0deg, rgba(122,80,48,0.015) 0 2px, transparent 2px 6px),
+        var(--parchment);
+      color: var(--text);
+      border: 1px solid var(--beige);
+      border-radius: 10px;
+      box-shadow: inset 0 0 0 1px rgba(200,144,60,0.18), 0 18px 40px -18px rgba(0,0,0,0.4);
+    }
+
+    /* top strip: emblem + country | doc number */
+    .pp-pass-top { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(200,144,60,0.45); padding-bottom: 11px; margin-bottom: 16px; }
+    .pp-emblem { color: var(--gold); font-size: 19px; }
+    .pp-country { font-family: 'Playfair Display', serif; font-size: clamp(17px, 2.6vw, 23px); color: var(--dark-brown); letter-spacing: 0.5px; }
+    .pp-docno { margin-left: auto; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--brown); white-space: nowrap; display: flex; flex-direction: column; gap: 1px; text-align: right; }
+
+    /* body: photo | fields | ghost + xoxo */
+    .pp-pass-body { display: flex; gap: clamp(14px, 3vw, 28px); align-items: flex-start; }
+    .pp-pass-left { flex: 0 0 auto; width: 120px; display: flex; flex-direction: column; gap: 8px; }
+    .pp-pass-label { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--brown); }
+    .pp-photo { position: relative; width: 120px; height: 150px; border: 1px solid var(--gold); padding: 4px; background: #fbf8f1; box-shadow: 0 5px 14px rgba(0,0,0,0.20); }
+    .pp-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 58% 30%; display: block; }
+    .pp-photo::after { content: ""; position: absolute; inset: 4px; background: linear-gradient(125deg, rgba(255,255,255,0.30), transparent 42%, transparent 70%, rgba(255,255,255,0.12)); pointer-events: none; }
+    .pp-type { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--dark-brown); display: flex; flex-direction: column; gap: 1px; }
+
+    /* fields grid — short ones share a row, long ones span full width */
+    .pp-fields { flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 11px 22px; align-content: start; }
+    .pp-field { display: flex; flex-direction: column; gap: 2px; }
+    .pp-field:nth-child(n+3) { grid-column: 1 / -1; }
+    .pp-key { font-family: 'DM Sans', sans-serif; font-size: 8.5px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--text-muted); }
+    .pp-val { font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 15px; color: var(--dark-brown); line-height: 1.25; }
+
+    /* right column — faded ghost photo + handwritten signature */
+    .pp-pass-right { flex: 0 0 auto; width: 116px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .pp-ghost { width: 80px; height: 100px; border: none; padding: 0; background: none; box-shadow: none; opacity: 0.22; }
+    .pp-ghost::after { display: none; }
+    .pp-ghost img { filter: grayscale(1) contrast(1.1); object-position: 58% 30%; }
+    .pp-sig-label { font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-top: 8px; }
+    .pp-xoxo { font-family: 'Dancing Script', cursive; font-weight: 700; font-size: 34px; color: var(--dark-brown); line-height: 1; transform: rotate(-4deg); }
+
+    /* machine-readable zone */
+    .pp-mrz { margin-top: 16px; border-top: 1px dashed rgba(156,122,90,0.4); padding-top: 10px; font-family: 'Courier New', monospace; font-size: clamp(8px, 1.5vw, 10.5px); letter-spacing: 1.5px; color: var(--text-muted); opacity: 0.55; line-height: 1.7; white-space: nowrap; overflow: hidden; }
+
+    /* About Me — plain prose, matching the site body (.w-desc) */
+    /* widen beyond the 900px .sub-wrap and centre on the page */
+    .pp-about { width: min(1300px, 88vw); margin: 40px 0 0; margin-left: 50%; transform: translateX(-50%); text-align: left; }
+    .pp-about-eyebrow { text-align: center; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 22px; }
+    .pp-about-p { font-family: 'DM Sans', sans-serif; font-weight: 300; font-size: 1rem; line-height: 1.9; color: var(--brown); margin: 0 0 0.7rem; text-indent: 2.2em; }
+    .pp-about-last { color: var(--dark-brown); font-weight: 400; }
+    .pp-about .pp-cta { display: block; width: max-content; margin: 22px auto 0; }
+
+    /* responsive — stack the passport card on phones */
+    @media (max-width: 680px) {
+      .pp-pass { padding: 18px 16px 14px; }
+      .pp-pass-body { flex-wrap: wrap; }
+      .pp-pass-left { flex-direction: row; align-items: center; width: 100%; gap: 14px; }
+      .pp-fields { grid-template-columns: 1fr; width: 100%; }
+      .pp-field:nth-child(n+3) { grid-column: auto; }
+      .pp-pass-right { width: 100%; flex-direction: row; justify-content: flex-end; align-items: center; gap: 12px; border-top: 1px dashed rgba(200,144,60,0.3); padding-top: 10px; }
+      .pp-sig-label { margin-top: 0; }
+      .pp-country { font-size: 18px; }
+      .pp-docno { font-size: 10px; }
+    }
+
   </style>
 </head>
 
@@ -1779,6 +2021,7 @@
         <button class="nav-menu-btn" onclick="toggleNavMenu()" id="nav-menu-btn" data-i18n="nav-menu">Menu</button>
         <div class="nav-dropdown" id="nav-dropdown">
           <button class="nav-link active" data-page="welcome" onclick="showPage('welcome')" data-i18n="nav-welcome">Welcome</button>
+          <button class="nav-link" data-page="about" onclick="showPage('about')" data-i18n="nav-about">About Me</button>
           <button class="nav-link" data-page="adventures" onclick="showPage('adventures')" data-i18n="nav-adventures">Adventures</button>
           <button class="nav-link" data-page="homes" onclick="showPage('homes')" data-i18n="nav-homes">Homes</button>
           <button class="nav-link" data-page="outfits" onclick="showPage('outfits')" data-i18n="nav-outfits">Outfits</button>
@@ -1813,10 +2056,24 @@
        PAGE 1 — WELCOME
   ════════════════════════════════════════ -->
   <div class="page active" id="page-welcome">
-    <img src="welcome-left.jpg" alt="" class="welcome-photo left light-only">
-    <img src="IMG_3392.jpg" alt="" class="welcome-photo left dark-only">
-    <img src="welcome-right.jpg" alt="" class="welcome-photo right light-only">
-    <img src="welcome-right-dark.jpg" alt="" class="welcome-photo right dark-only">
+    <!-- light left -->
+    <div class="welcome-photo left light-only">
+      <img src="welcome-left.jpg" alt="" class="wp-img">
+    </div>
+    <!-- dark left: scattered blinking stars -->
+    <div class="welcome-photo left dark-only">
+      <img src="IMG_3392.jpg" alt="" class="wp-img">
+      <div class="wp-stars"></div>
+    </div>
+    <!-- light right -->
+    <div class="welcome-photo right light-only">
+      <img src="welcome-right.jpg" alt="" class="wp-img">
+    </div>
+    <!-- dark right: scattered blinking stars -->
+    <div class="welcome-photo right dark-only">
+      <img src="welcome-right-dark.jpg" alt="" class="wp-img">
+      <div class="wp-stars"></div>
+    </div>
     <div class="welcome-wrap">
 
       <div class="w-deco">
@@ -1868,6 +2125,78 @@
   </div>
 
   <!-- ════════════════════════════════════════
+       PAGE — ABOUT ME (Digital Passport)
+  ════════════════════════════════════════ -->
+  <div class="page" id="page-about">
+    <div class="sub-wrap">
+      <div class="sub-header">
+        <p class="sub-eyebrow" data-i18n="about-eyebrow">✦ &nbsp; The Passenger &nbsp; ✦</p>
+        <h2 class="sub-title" data-i18n="about-title">About Me</h2>
+        <p class="sub-sub" data-i18n="about-sub">Officially unofficial. Please do not present at any border.</p>
+      </div>
+
+      <div class="passport">
+        <!-- ── Single horizontal passport bio-data page ── -->
+        <div class="pp-pass">
+          <div class="pp-pass-top">
+            <span class="pp-emblem" aria-hidden="true">✦</span>
+            <span class="pp-country" data-i18n="pp-country">Republic of Wonderland</span>
+            <span class="pp-docno"><span class="pp-key" data-i18n="pp-docno">Passport No.</span> XD6967</span>
+          </div>
+
+          <div class="pp-pass-body">
+            <div class="pp-pass-left">
+              <span class="pp-pass-label" data-i18n="pp-passport">Passport · Passeport</span>
+              <div class="pp-photo">
+                <!-- Swap src / object-position to reframe the crop -->
+                <img src="passport.jpg" alt="Patrycja" />
+              </div>
+              <span class="pp-type"><span class="pp-key" data-i18n="pp-type">Type</span> P</span>
+            </div>
+
+            <div class="pp-fields">
+              <div class="pp-field"><span class="pp-key" data-i18n="pp-f-name">Name / Nom</span><span class="pp-val">Patrycja</span></div>
+              <div class="pp-field"><span class="pp-key" data-i18n="pp-f-eyes">Eyes / Yeux</span><span class="pp-val" data-i18n="pp-v-eyes">Blue</span></div>
+              <div class="pp-field"><span class="pp-key" data-i18n="pp-f-cosmic">Cosmic placement</span><span class="pp-val" data-i18n="pp-v-cosmic">Virgo sun / Libra moon / Aries rising</span></div>
+              <div class="pp-field"><span class="pp-key" data-i18n="pp-f-residency">Residency status</span><span class="pp-val" data-i18n="pp-v-residency">Between flights &amp; feelings</span></div>
+              <div class="pp-field"><span class="pp-key" data-i18n="pp-f-marks">Identification marks</span><span class="pp-val" data-i18n="pp-v-marks">More tattoos than my mom is aware of</span></div>
+              <div class="pp-field"><span class="pp-key" data-i18n="pp-f-validity">Validity</span><span class="pp-val" data-i18n="pp-v-validity">Until further self-discovery</span></div>
+            </div>
+
+            <div class="pp-pass-right">
+              <div class="pp-photo pp-ghost" aria-hidden="true"><img src="passport.jpg" alt="" /></div>
+              <span class="pp-sig-label" data-i18n="pp-sig">Holder’s signature</span>
+              <span class="pp-xoxo">xoxo</span>
+            </div>
+          </div>
+
+          <div class="pp-mrz">P&lt;WONPATRYCJA&lt;&lt;WANDERER&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>XD69674WON&lt;&lt;VIRGOSUN&lt;LIBRAMOON&lt;ARIESRISING&lt;3&lt;&lt;CREATESEVERYTHING&lt;&lt;READS3ATONCE&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</div>
+        </div>
+
+        <!-- ── About Me — plain prose, beneath the passport ── -->
+        <div class="pp-about">
+          <p class="pp-about-eyebrow" data-i18n="pp-about-eyebrow">✦ &nbsp; a little about me &nbsp; ✦</p>
+          <p class="pp-about-p" data-i18n="pp-about-1">I have a relatively serious office job, which is funny, because I’m not a very serious person. I spend my days inside systems, meetings, and neatly structured thoughts — while internally I’m just waiting for my next chance to disappear somewhere warm, green, or slightly inconvenient to get to.</p>
+          <p class="pp-about-p" data-i18n="pp-about-2">I’m a creature of the outdoors forced into a calendar.</p>
+          <p class="pp-about-p" data-i18n="pp-about-3">I travel whenever I can, which means my life is a cycle of booking flights, romanticizing airports (even though they do their absolute best to test my patience), and then coming back home to check which of my plants survived my absence. It’s a delicate relationship — I leave, they suffer, I return, we rebuild. Some of them have trust issues at this point.</p>
+          <p class="pp-about-p" data-i18n="pp-about-4">I run on caffeine in all its socially acceptable forms: coffee when I want to feel put together, green tea when I’m pretending to be balanced, and energy drinks when things get a little… survival mode. Hydration is a concept I respect but don’t always practice.</p>
+          <p class="pp-about-p" data-i18n="pp-about-5">I have strong, unwavering opinions about cats. I won’t elaborate, but I will judge you quietly based on yours.</p>
+          <p class="pp-about-p" data-i18n="pp-about-6">There’s always a stack of unread books somewhere near me — not because I don’t read, but because I keep believing I will suddenly become the kind of person who reads three at once. Alongside that: dozens of poems, half-written, overfelt, and safely hidden in my notes where they can’t expose me.</p>
+          <p class="pp-about-p" data-i18n="pp-about-7">Lately, I’ve been mentally living in the 70s. A bit of a hippie in theory — soft rebellion, big feelings, music that makes everything feel like a scene. In practice, I still show up on time and reply to emails.</p>
+          <p class="pp-about-p" data-i18n="pp-about-8">I like creating in the widest sense of the word. Not polished, not always finished — just following whatever feels interesting, beautiful, or slightly obsessive at the moment. Some things turn into something. Some don’t. I keep going anyway.</p>
+          <p class="pp-about-p" data-i18n="pp-about-9">I notice small details. I overthink. I romanticize things that don’t need it. I get attached to places, moments, songs, and versions of myself that only existed briefly.</p>
+          <p class="pp-about-p" data-i18n="pp-about-10">I’m structured enough to function, chaotic enough to make it interesting, and curious enough to never really settle.</p>
+          <p class="pp-about-p pp-about-last" data-i18n="pp-about-11">Still figuring things out. Probably always will be.</p>
+
+          <button class="w-cta pp-cta" onclick="showPage('adventures')">
+            <span data-i18n="about-cta">See all the country stamps I gathered so far &nbsp;&rarr;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
        PAGE 2 — ADVENTURES
   ════════════════════════════════════════ -->
   <div class="page" id="page-adventures">
@@ -1881,849 +2210,6 @@
       </div>
 
       <div class="video-grid" id="video-grid">
-
-        <!-- Mallorca 2026 -->
-        <div class="video-card" onclick="openTrip('mallorca')">
-          <div class="video-thumb">
-            <div class="thumb-bg">
-              <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-                <defs>
-                  <linearGradient id="maSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#a7cbe0"/>
-                    <stop offset="0.42" stop-color="#cbb0d2"/>
-                    <stop offset="0.72" stop-color="#ecb6bd"/>
-                    <stop offset="1" stop-color="#f3c9a8"/>
-                  </linearGradient>
-                  <radialGradient id="maGlow" cx="0.38" cy="0.5" r="0.5">
-                    <stop offset="0" stop-color="#fff2e2"/>
-                    <stop offset="0.5" stop-color="#fbd9c8" stop-opacity="0.6"/>
-                    <stop offset="1" stop-color="#fbd9c8" stop-opacity="0"/>
-                  </radialGradient>
-                  <linearGradient id="maHill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#6e4a68"/>
-                    <stop offset="1" stop-color="#543a55"/>
-                  </linearGradient>
-                  <radialGradient id="maVig" cx="0.5" cy="0.45" r="0.75">
-                    <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
-                    <stop offset="1" stop-color="#3a2240" stop-opacity="0.32"/>
-                  </radialGradient>
-                </defs>
-                <rect width="320" height="180" fill="url(#maSky)"/>
-                <circle cx="122" cy="90" r="64" fill="url(#maGlow)"/>
-                <circle cx="122" cy="92" r="22" fill="#fff1e0"/>
-                <!-- Distant rolling hills -->
-                <path d="M 0 150 Q 70 124 150 138 Q 240 154 320 130 L 320 180 L 0 180 Z" fill="#7d5874" opacity="0.55"/>
-                <path d="M 0 162 Q 90 144 180 156 Q 260 166 320 152 L 320 180 L 0 180 Z" fill="url(#maHill)"/>
-                <!-- Cypress trees -->
-                <g fill="#4a3149">
-                  <path d="M 44 150 Q 48 128 52 150 Z"/>
-                  <path d="M 58 152 Q 62 134 66 152 Z"/>
-                </g>
-                <!-- Stone windmill on the rise -->
-                <g fill="#3f2a42">
-                  <polygon points="186,150 214,150 209,96 191,96"/>
-                  <ellipse cx="200" cy="96" rx="13" ry="4"/>
-                  <polygon points="189,96 211,96 200,80"/>
-                </g>
-                <line x1="192" y1="120" x2="208" y2="120" stroke="#caa9c6" stroke-opacity="0.3" stroke-width="1"/>
-                <line x1="193" y1="134" x2="207" y2="134" stroke="#caa9c6" stroke-opacity="0.3" stroke-width="1"/>
-                <path d="M 196 150 L 196 138 A 4 5 0 0 1 204 138 L 204 150 Z" fill="#caa9c6" opacity="0.45"/>
-                <!-- Windmill sails -->
-                <g fill="#3f2a42">
-                  <polygon points="197,87 203,87 200,30" transform="rotate(28,200,87)"/>
-                  <polygon points="197,87 203,87 200,30" transform="rotate(118,200,87)"/>
-                  <polygon points="197,87 203,87 200,30" transform="rotate(208,200,87)"/>
-                  <polygon points="197,87 203,87 200,30" transform="rotate(298,200,87)"/>
-                </g>
-                <circle cx="200" cy="87" r="5.5" fill="#caa9c6"/>
-                <circle cx="200" cy="87" r="2.5" fill="#3f2a42"/>
-                <rect width="320" height="180" fill="url(#maVig)"/>
-                <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-              </svg>
-            </div>
-            <div class="thumb-play"><span>▶</span></div>
-          </div>
-          <div class="video-info">
-            <div class="video-badge">2026 &nbsp;·&nbsp; Spain</div>
-            <h3 class="video-title" data-trip-title="mallorca">Mallorca with Kasia</h3>
-            <p class="video-desc" data-trip-desc="mallorca">One girls' week. Perfect beaches, perfect company, and one tree that had the audacity to win. I have stitches. The tree does not. 10/10 for everything except the tree.</p>
-          </div>
-        </div>
-
-        <!-- Maldives 2026 -->
-        <div class="video-card" onclick="openTrip('maldives')">
-          <div class="video-thumb">
-            <div class="thumb-bg">
-              <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-                <defs>
-                  <linearGradient id="mvSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#cdeef2"/>
-                    <stop offset="0.42" stop-color="#8fd6e4"/>
-                    <stop offset="0.72" stop-color="#f6dca6"/>
-                    <stop offset="1" stop-color="#f4c98a"/>
-                  </linearGradient>
-                  <radialGradient id="mvGlow" cx="0.62" cy="0.58" r="0.5">
-                    <stop offset="0" stop-color="#fff6e0"/>
-                    <stop offset="0.5" stop-color="#ffe9bc" stop-opacity="0.6"/>
-                    <stop offset="1" stop-color="#ffe9bc" stop-opacity="0"/>
-                  </radialGradient>
-                  <linearGradient id="mvSea" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#36b1cb"/>
-                    <stop offset="1" stop-color="#1d8aa6"/>
-                  </linearGradient>
-                  <linearGradient id="mvGlint" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#fff1cf" stop-opacity="0.8"/>
-                    <stop offset="1" stop-color="#fff1cf" stop-opacity="0"/>
-                  </linearGradient>
-                  <radialGradient id="mvVig" cx="0.5" cy="0.45" r="0.75">
-                    <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
-                    <stop offset="1" stop-color="#0a3a48" stop-opacity="0.32"/>
-                  </radialGradient>
-                </defs>
-                <rect width="320" height="180" fill="url(#mvSky)"/>
-                <circle cx="205" cy="104" r="66" fill="url(#mvGlow)"/>
-                <circle cx="205" cy="106" r="23" fill="#fff5d6"/>
-                <!-- Sea -->
-                <rect x="0" y="116" width="320" height="64" fill="url(#mvSea)"/>
-                <rect x="194" y="116" width="22" height="64" fill="url(#mvGlint)"/>
-                <g stroke="#fff1cf" stroke-opacity="0.26" stroke-width="1.2" stroke-linecap="round">
-                  <line x1="190" y1="128" x2="220" y2="128"/>
-                  <line x1="186" y1="140" x2="224" y2="140"/>
-                  <line x1="192" y1="152" x2="218" y2="152"/>
-                </g>
-                <!-- Palm tree, left -->
-                <g fill="none" stroke="#114b5a" stroke-width="4.5" stroke-linecap="round">
-                  <path d="M 70 116 C 73 96 80 78 92 58"/>
-                </g>
-                <g fill="none" stroke="#114b5a" stroke-width="3" stroke-linecap="round">
-                  <path d="M 92 58 C 72 50 52 50 36 58"/>
-                  <path d="M 92 58 C 78 40 68 30 58 24"/>
-                  <path d="M 92 58 C 96 38 104 28 112 22"/>
-                  <path d="M 92 58 C 110 50 126 50 140 58"/>
-                </g>
-                <circle cx="89" cy="62" r="3.4" fill="#114b5a"/>
-                <circle cx="96" cy="60" r="3" fill="#114b5a"/>
-                <!-- Overwater bungalow -->
-                <g fill="#114b5a">
-                  <polygon points="150,60 250,60 200,34"/>
-                  <rect x="160" y="60" width="80" height="34"/>
-                  <rect x="168" y="92" width="64" height="6"/>
-                  <rect x="172" y="96" width="5" height="22"/>
-                  <rect x="186" y="96" width="5" height="22"/>
-                  <rect x="209" y="96" width="5" height="22"/>
-                  <rect x="223" y="96" width="5" height="22"/>
-                  <!-- Jetty -->
-                  <rect x="124" y="106" width="44" height="6"/>
-                </g>
-                <rect x="170" y="68" width="14" height="14" fill="#8fd6e4" opacity="0.55"/>
-                <rect x="216" y="68" width="14" height="14" fill="#8fd6e4" opacity="0.55"/>
-                <rect width="320" height="180" fill="url(#mvVig)"/>
-                <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-              </svg>
-            </div>
-            <div class="thumb-play"><span>▶</span></div>
-          </div>
-          <div class="video-info">
-            <div class="video-badge">2026 &nbsp;·&nbsp; Maldives</div>
-            <h3 class="video-title" data-trip-title="maldives">Maldives</h3>
-            <p class="video-desc" data-trip-desc="maldives">Two weeks of turquoise water, non-stop activities, and a genuinely alarming amount of tuna. Arrived as a stranger. Left with a WhatsApp group I actually check.</p>
-          </div>
-        </div>
-
-        <!-- Paris 2023 & 2026 -->
-        <div class="video-card" onclick="openTrip('paris')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="prSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a090c0"/><stop offset="0.35" stop-color="#c8a8d0"/><stop offset="0.62" stop-color="#f0c8c0"/><stop offset="0.82" stop-color="#f8e0a0"/><stop offset="1" stop-color="#f4d080"/></linearGradient>
-                <linearGradient id="prSeine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7890b0"/><stop offset="1" stop-color="#5070a0"/></linearGradient>
-                <radialGradient id="prVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#201030" stop-opacity="0.32"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#prSky)"/>
-              <rect x="0" y="140" width="320" height="40" fill="url(#prSeine)"/>
-              <!-- rooftops -->
-              <path d="M 0 128 Q 40 118 80 124 Q 100 126 120 130 L 120 142 L 0 142 Z" fill="#2a2838"/>
-              <path d="M 200 130 Q 240 120 280 126 Q 300 128 320 124 L 320 142 L 200 142 Z" fill="#2a2838"/>
-              <rect x="10" y="118" width="40" height="18" fill="#32304a"/>
-              <path d="M 10 120 L 30 106 L 50 120 Z" fill="#32304a"/>
-              <rect x="208" y="110" width="28" height="32" fill="#32304a"/><rect x="240" y="114" width="24" height="28" fill="#2e2c46"/>
-              <!-- Eiffel Tower -->
-              <g fill="#2a283a">
-                <path d="M 120 142 L 140 88 L 160 84 L 180 88 L 200 142 Z"/>
-                <path d="M 124 138 Q 160 114 196 138 Z" fill="url(#prSky)" opacity="0.28"/>
-                <rect x="136" y="86" width="48" height="6"/>
-                <path d="M 138 86 L 150 56 L 170 56 L 182 86 Z"/>
-                <rect x="148" y="54" width="24" height="5"/>
-                <path d="M 150 54 L 156 26 L 164 26 L 170 54 Z"/>
-                <rect x="157" y="12" width="6" height="16"/>
-                <rect x="155" y="19" width="10" height="2"/>
-                <circle cx="160" cy="10" r="2.5" fill="#f8e060" opacity="0.8"/>
-              </g>
-              <!-- river shimmer -->
-              <g stroke="#fff" stroke-opacity="0.2" stroke-width="1.2" stroke-linecap="round"><line x1="40" y1="152" x2="80" y2="152"/><line x1="200" y1="158" x2="250" y2="158"/></g>
-              <rect width="320" height="180" fill="url(#prVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2023 &amp; 2026 &nbsp;·&nbsp; France</div>
-            <h3 class="video-title" data-trip-title="paris">Paris</h3>
-            <p class="video-desc" data-trip-desc="paris">Two trips, zero times I wasn't completely charmed. Paris should be a cliché by now but somehow refuses to be one. The baguettes are fresh, the attitude is real, and every arrondissement feels like its own tiny country. Je reviendrai.</p>
-          </div>
-        </div>
-
-        <!-- Brussels 2022–2026 -->
-        <div class="video-card" onclick="openTrip('brussels')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="bsSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4a840"/><stop offset="0.42" stop-color="#e8b84a"/><stop offset="0.68" stop-color="#d49030"/><stop offset="1" stop-color="#b87020"/></linearGradient>
-                <radialGradient id="bsGlow" cx="0.5" cy="0.56" r="0.5"><stop offset="0" stop-color="#fff8d0"/><stop offset="0.5" stop-color="#f8e090" stop-opacity="0.5"/><stop offset="1" stop-color="#f8e090" stop-opacity="0"/></radialGradient>
-                <radialGradient id="bsVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#2a1400" stop-opacity="0.38"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#bsSky)"/>
-              <circle cx="160" cy="98" r="65" fill="url(#bsGlow)"/>
-              <rect x="0" y="150" width="320" height="30" fill="#8a6a28"/>
-              <!-- left guild houses -->
-              <g fill="#5a4010">
-                <rect x="0" y="102" width="36" height="50"/><rect x="37" y="94" width="30" height="58"/><rect x="69" y="90" width="28" height="62"/>
-                <path d="M 2 104 L 10 88 L 18 104 Z"/><path d="M 12 104 L 20 90 L 28 104 Z"/><path d="M 38 96 L 46 80 L 54 96 Z"/><path d="M 52 96 L 60 82 L 68 96 Z"/><path d="M 70 92 L 78 76 L 86 92 Z"/><path d="M 82 92 L 90 78 L 98 92 Z"/>
-              </g>
-              <g fill="#f0c840" opacity="0.35"><rect x="4" y="110" width="7" height="10" rx="3.5"/><rect x="14" y="110" width="7" height="10" rx="3.5"/><rect x="24" y="110" width="7" height="10" rx="3.5"/><rect x="40" y="102" width="7" height="10" rx="3.5"/><rect x="52" y="102" width="7" height="10" rx="3.5"/><rect x="72" y="98" width="7" height="10" rx="3.5"/><rect x="84" y="98" width="7" height="10" rx="3.5"/></g>
-              <!-- Town Hall -->
-              <g fill="#4a3808">
-                <rect x="98" y="96" width="100" height="56"/>
-                <rect x="124" y="42" width="32" height="56"/>
-                <path d="M 122 44 L 140 6 L 158 44 Z"/>
-                <rect x="122" y="62" width="36" height="4"/><rect x="122" y="74" width="36" height="4"/><rect x="122" y="86" width="36" height="4"/>
-                <rect x="104" y="108" width="12" height="18" rx="6" fill="#f0c840" opacity="0.35"/>
-                <rect x="120" y="108" width="12" height="18" rx="6" fill="#f0c840" opacity="0.35"/>
-                <rect x="144" y="108" width="12" height="18" rx="6" fill="#f0c840" opacity="0.35"/>
-                <rect x="160" y="108" width="12" height="18" rx="6" fill="#f0c840" opacity="0.35"/>
-                <rect x="176" y="108" width="12" height="18" rx="6" fill="#f0c840" opacity="0.35"/>
-                <rect x="130" y="50" width="8" height="12" rx="4" fill="#f0c840" opacity="0.4"/>
-                <rect x="130" y="66" width="8" height="10" rx="4" fill="#f0c840" opacity="0.35"/>
-              </g>
-              <circle cx="140" cy="5" r="3" fill="#c8a030"/>
-              <!-- right guild houses -->
-              <g fill="#5a4010">
-                <rect x="200" y="92" width="28" height="60"/><rect x="230" y="98" width="30" height="54"/><rect x="262" y="102" width="30" height="50"/><rect x="292" y="96" width="28" height="56"/>
-                <path d="M 201 94 L 208 80 L 215 94 Z"/><path d="M 213 94 L 220 82 L 227 94 Z"/><path d="M 231 100 L 238 86 L 245 100 Z"/><path d="M 245 100 L 252 88 L 259 100 Z"/><path d="M 263 104 L 270 90 L 277 104 Z"/><path d="M 294 98 L 303 82 L 312 98 Z"/>
-              </g>
-              <g fill="#f0c840" opacity="0.3"><rect x="204" y="100" width="7" height="10" rx="3.5"/><rect x="215" y="100" width="7" height="10" rx="3.5"/><rect x="234" y="106" width="7" height="10" rx="3.5"/><rect x="248" y="106" width="7" height="10" rx="3.5"/><rect x="266" y="110" width="7" height="10" rx="3.5"/><rect x="296" y="104" width="7" height="10" rx="3.5"/></g>
-              <rect width="320" height="180" fill="url(#bsVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2022–2026 &nbsp;·&nbsp; Belgium</div>
-            <h3 class="video-title" data-trip-title="brussels">Brussels</h3>
-            <p class="video-desc" data-trip-desc="brussels">Three visits and I am still working through the waffle situation. Brussels lets Amsterdam and Paris take the spotlight while quietly being one of the most interesting cities in Europe. The frites are non-negotiable. The beer list is dangerous.</p>
-          </div>
-        </div>
-
-        <!-- Vienna 2025 -->
-        <div class="video-card" onclick="openTrip('vienna')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="vnSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0d0e8"/><stop offset="0.42" stop-color="#d4c8a8"/><stop offset="0.7" stop-color="#e8d890"/><stop offset="1" stop-color="#d4c070"/></linearGradient>
-                <radialGradient id="vnGlow" cx="0.5" cy="0.52" r="0.5"><stop offset="0" stop-color="#fffde0"/><stop offset="0.5" stop-color="#f8eca0" stop-opacity="0.5"/><stop offset="1" stop-color="#f8eca0" stop-opacity="0"/></radialGradient>
-                <radialGradient id="vnVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#1a1000" stop-opacity="0.32"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#vnSky)"/>
-              <circle cx="160" cy="96" r="65" fill="url(#vnGlow)"/>
-              <!-- formal garden -->
-              <rect x="0" y="144" width="320" height="36" fill="#5a7840"/>
-              <rect x="0" y="138" width="320" height="10" fill="#6a8848"/>
-              <g fill="#4a6830"><rect x="0" y="130" width="30" height="10"/><rect x="36" y="130" width="30" height="10"/><rect x="72" y="130" width="30" height="10"/><rect x="108" y="130" width="30" height="10"/><rect x="144" y="130" width="30" height="10"/><rect x="180" y="130" width="30" height="10"/><rect x="216" y="130" width="30" height="10"/><rect x="252" y="130" width="30" height="10"/><rect x="288" y="130" width="32" height="10"/></g>
-              <!-- Palace -->
-              <rect x="28" y="80" width="264" height="54" fill="#d4b040"/>
-              <rect x="26" y="76" width="268" height="8" fill="#b89030"/>
-              <!-- central pavilion -->
-              <rect x="108" y="64" width="104" height="72" fill="#d8b848"/>
-              <rect x="106" y="60" width="108" height="8" fill="#b89030"/>
-              <path d="M 106 60 L 160 40 L 214 60 Z" fill="#c0a030"/>
-              <!-- columns -->
-              <g fill="#c4a030"><rect x="34" y="84" width="6" height="46"/><rect x="48" y="84" width="6" height="46"/><rect x="62" y="84" width="6" height="46"/><rect x="76" y="84" width="6" height="46"/><rect x="90" y="84" width="6" height="46"/><rect x="114" y="68" width="6" height="62"/><rect x="128" y="68" width="6" height="62"/><rect x="142" y="68" width="6" height="62"/><rect x="158" y="68" width="6" height="62"/><rect x="174" y="68" width="6" height="62"/><rect x="188" y="68" width="6" height="62"/><rect x="202" y="68" width="6" height="62"/><rect x="220" y="84" width="6" height="46"/><rect x="234" y="84" width="6" height="46"/><rect x="248" y="84" width="6" height="46"/><rect x="262" y="84" width="6" height="46"/><rect x="276" y="84" width="6" height="46"/></g>
-              <!-- windows -->
-              <g fill="#8ab0c0" opacity="0.45"><rect x="38" y="90" width="12" height="18" rx="6"/><rect x="54" y="90" width="12" height="18" rx="6"/><rect x="68" y="90" width="12" height="18" rx="6"/><rect x="82" y="90" width="12" height="18" rx="6"/><rect x="118" y="74" width="12" height="20" rx="6"/><rect x="134" y="74" width="12" height="20" rx="6"/><rect x="150" y="74" width="12" height="20" rx="6"/><rect x="166" y="74" width="12" height="20" rx="6"/><rect x="182" y="74" width="12" height="20" rx="6"/><rect x="198" y="74" width="12" height="20" rx="6"/><rect x="222" y="90" width="12" height="18" rx="6"/><rect x="236" y="90" width="12" height="18" rx="6"/><rect x="250" y="90" width="12" height="18" rx="6"/><rect x="264" y="90" width="12" height="18" rx="6"/></g>
-              <rect width="320" height="180" fill="url(#vnVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2025 &nbsp;·&nbsp; Austria</div>
-            <h3 class="video-title" data-trip-title="vienna">Vienna</h3>
-            <p class="video-desc" data-trip-desc="vienna">Coffee houses, imperial palaces, and Sachertorte that genuinely changed my relationship with chocolate cake. A city that has been beautiful since before it was fashionable to care about beauty, and it knows it.</p>
-          </div>
-        </div>
-
-        <!-- Thailand 2025 -->
-        <div class="video-card" onclick="openTrip('thailand')">
-          <div class="video-thumb">
-            <div class="thumb-bg">
-              <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-                <defs>
-                  <linearGradient id="thSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#bfe3cf"/>
-                    <stop offset="0.45" stop-color="#86c8a3"/>
-                    <stop offset="0.74" stop-color="#dfc07c"/>
-                    <stop offset="1" stop-color="#e9b35e"/>
-                  </linearGradient>
-                  <radialGradient id="thGlow" cx="0.5" cy="0.62" r="0.5">
-                    <stop offset="0" stop-color="#fff2cf"/>
-                    <stop offset="0.5" stop-color="#f6d792" stop-opacity="0.65"/>
-                    <stop offset="1" stop-color="#f6d792" stop-opacity="0"/>
-                  </radialGradient>
-                  <linearGradient id="thWater" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#3f9a78"/>
-                    <stop offset="1" stop-color="#236e54"/>
-                  </linearGradient>
-                  <radialGradient id="thVig" cx="0.5" cy="0.45" r="0.75">
-                    <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
-                    <stop offset="1" stop-color="#10402f" stop-opacity="0.34"/>
-                  </radialGradient>
-                </defs>
-                <rect width="320" height="180" fill="url(#thSky)"/>
-                <circle cx="160" cy="108" r="74" fill="url(#thGlow)"/>
-                <circle cx="160" cy="110" r="26" fill="#fff3d2"/>
-                <!-- Palm fronds framing the top corners -->
-                <g stroke="#185040" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-opacity="0.9">
-                  <path d="M 6 14 C 34 20 52 34 60 56"/>
-                  <path d="M 6 14 C 30 12 50 18 64 30"/>
-                  <path d="M 6 14 C 22 30 30 46 32 64"/>
-                  <path d="M 314 14 C 286 20 268 34 260 56"/>
-                  <path d="M 314 14 C 290 12 270 18 256 30"/>
-                  <path d="M 314 14 C 298 30 290 46 288 64"/>
-                </g>
-                <!-- Temple prang silhouette -->
-                <g fill="#163f31">
-                  <polygon points="160,18 165,58 155,58"/>
-                  <polygon points="160,30 175,72 145,72"/>
-                  <polygon points="150,72 170,72 178,98 142,98"/>
-                  <polygon points="142,98 178,98 186,128 134,128"/>
-                  <rect x="134" y="126" width="52" height="22"/>
-                  <!-- Flanking smaller prangs -->
-                  <polygon points="112,84 118,108 106,108"/>
-                  <polygon points="106,108 118,108 124,130 100,130"/>
-                  <rect x="100" y="128" width="24" height="20"/>
-                  <polygon points="208,84 214,108 202,108"/>
-                  <polygon points="202,108 214,108 220,130 196,130"/>
-                  <rect x="196" y="128" width="24" height="20"/>
-                  <!-- Terrace -->
-                  <rect x="78" y="146" width="164" height="8"/>
-                </g>
-                <!-- Water + reflection -->
-                <rect x="0" y="154" width="320" height="26" fill="url(#thWater)"/>
-                <g stroke="#fff3d2" stroke-opacity="0.22" stroke-width="1.2" stroke-linecap="round">
-                  <line x1="150" y1="162" x2="170" y2="162"/>
-                  <line x1="146" y1="170" x2="174" y2="170"/>
-                </g>
-                <rect width="320" height="180" fill="url(#thVig)"/>
-                <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-              </svg>
-            </div>
-            <div class="thumb-play"><span>▶</span></div>
-          </div>
-          <div class="video-info">
-            <div class="video-badge">2025 &nbsp;·&nbsp; Thailand</div>
-            <h3 class="video-title" data-trip-title="thailand">Thailand with Lolek</h3>
-            <p class="video-desc" data-trip-desc="thailand">Three weeks, one best friend, and approximately one million scooter kilometres. The Full Moon Party in Koh Phangan was everything they said it would be and nothing I was prepared for.</p>
-          </div>
-        </div>
-
-        <!-- Milan 2023 & 2025 -->
-        <div class="video-card" onclick="openTrip('milan')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="mlSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8c0d8"/><stop offset="0.4" stop-color="#d8c8c0"/><stop offset="0.72" stop-color="#e8d4a8"/><stop offset="1" stop-color="#d4b888"/></linearGradient>
-                <radialGradient id="mlGlow" cx="0.5" cy="0.62" r="0.5"><stop offset="0" stop-color="#fff8e8"/><stop offset="0.5" stop-color="#f8e4b0" stop-opacity="0.5"/><stop offset="1" stop-color="#f8e4b0" stop-opacity="0"/></radialGradient>
-                <radialGradient id="mlVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#1a0a20" stop-opacity="0.38"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#mlSky)"/>
-              <circle cx="160" cy="102" r="70" fill="url(#mlGlow)"/>
-              <!-- Duomo facade + spires -->
-              <g fill="#2a2030">
-                <rect x="78" y="100" width="164" height="80"/>
-                <!-- gables -->
-                <path d="M 78 100 L 108 80 L 138 100 Z"/><path d="M 108 100 L 128 87 L 148 100 Z"/>
-                <path d="M 138 100 L 160 82 L 182 100 Z"/><path d="M 172 100 L 192 87 L 212 100 Z"/>
-                <path d="M 202 100 L 224 80 L 242 100 Z"/>
-                <!-- central spire -->
-                <rect x="154" y="18" width="12" height="70"/><polygon points="154,20 160,5 166,20"/>
-                <rect x="151" y="44" width="18" height="5"/><rect x="152" y="35" width="16" height="4"/>
-                <!-- secondary spires -->
-                <rect x="126" y="32" width="10" height="52"/><polygon points="126,34 131,22 136,34"/>
-                <rect x="124" y="54" width="14" height="4"/>
-                <rect x="178" y="32" width="10" height="52"/><polygon points="178,34 183,22 188,34"/>
-                <rect x="176" y="54" width="14" height="4"/>
-                <!-- smaller -->
-                <rect x="102" y="52" width="7" height="32"/><polygon points="102,54 106,44 110,54"/>
-                <rect x="202" y="52" width="7" height="32"/><polygon points="202,54 206,44 210,54"/>
-                <rect x="86" y="62" width="6" height="24"/><polygon points="86,64 89,56 92,64"/>
-                <rect x="217" y="62" width="6" height="24"/><polygon points="217,64 220,56 223,64"/>
-                <rect x="116" y="58" width="5" height="26"/><polygon points="116,60 119,52 122,60"/>
-                <rect x="193" y="58" width="5" height="26"/><polygon points="193,60 196,52 199,60"/>
-              </g>
-              <!-- Madonnina -->
-              <circle cx="160" cy="5" r="3.5" fill="#c8a040"/>
-              <!-- rose window -->
-              <circle cx="160" cy="122" r="13" fill="none" stroke="#3a3050" stroke-width="2" opacity="0.45"/>
-              <!-- gothic windows glow -->
-              <g fill="#e8c070" opacity="0.28"><rect x="92" y="120" width="10" height="18" rx="5"/><rect x="112" y="116" width="10" height="22" rx="5"/><rect x="186" y="116" width="10" height="22" rx="5"/><rect x="206" y="120" width="10" height="18" rx="5"/></g>
-              <rect width="320" height="180" fill="url(#mlVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2023 &amp; 2025 &nbsp;·&nbsp; Italy</div>
-            <h3 class="video-title" data-trip-title="milan">Milan</h3>
-            <p class="video-desc" data-trip-desc="milan">The Duomo, the aperitivo hour, and Lake Como just an hour away — where mountains drop straight into the water and you forget the city entirely. A place that makes you walk faster, dress better, and escape to the lake on weekends without apologising.</p>
-          </div>
-        </div>
-
-        <!-- New England 2019 & 2025 -->
-        <div class="video-card" onclick="openTrip('newengland')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="neSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8c890"/><stop offset="0.42" stop-color="#e0a050"/><stop offset="0.7" stop-color="#c87030"/><stop offset="1" stop-color="#a84820"/></linearGradient>
-                <radialGradient id="neGlow" cx="0.5" cy="0.38" r="0.42"><stop offset="0" stop-color="#fff4d0"/><stop offset="0.5" stop-color="#ffe0a0" stop-opacity="0.5"/><stop offset="1" stop-color="#ffe0a0" stop-opacity="0"/></radialGradient>
-                <linearGradient id="neSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a789a"/><stop offset="1" stop-color="#2a5878"/></linearGradient>
-                <radialGradient id="neVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#2a1008" stop-opacity="0.35"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#neSky)"/>
-              <circle cx="160" cy="70" r="58" fill="url(#neGlow)"/>
-              <circle cx="160" cy="72" r="19" fill="#fff4d0"/>
-              <!-- autumn trees left -->
-              <ellipse cx="38" cy="118" rx="22" ry="17" fill="#c03020"/>
-              <ellipse cx="28" cy="126" rx="14" ry="11" fill="#a82818"/>
-              <line x1="38" y1="134" x2="38" y2="154" stroke="#5a3820" stroke-width="3"/>
-              <ellipse cx="80" cy="112" rx="20" ry="16" fill="#e07820"/>
-              <line x1="80" y1="128" x2="80" y2="148" stroke="#5a3820" stroke-width="3"/>
-              <ellipse cx="118" cy="118" rx="18" ry="14" fill="#d0a820"/>
-              <line x1="118" y1="130" x2="118" y2="150" stroke="#5a3820" stroke-width="2.5"/>
-              <!-- lighthouse -->
-              <rect x="150" y="82" width="16" height="48" fill="#f0f0f0"/>
-              <rect x="150" y="90" width="16" height="8" fill="#c03020"/>
-              <rect x="150" y="106" width="16" height="8" fill="#c03020"/>
-              <rect x="150" y="122" width="16" height="8" fill="#c03020"/>
-              <rect x="148" y="78" width="20" height="6" fill="#c03020"/>
-              <circle cx="158" cy="78" r="4" fill="#f0e860" opacity="0.85"/>
-              <rect x="155" y="118" width="6" height="12" rx="3" fill="#8a5030"/>
-              <!-- keeper cottage -->
-              <rect x="166" y="112" width="28" height="20" fill="#e8e0d4"/>
-              <path d="M 164 114 L 180 102 L 196 114 Z" fill="#c03020"/>
-              <!-- right trees -->
-              <ellipse cx="222" cy="116" rx="16" ry="14" fill="#c84020"/>
-              <ellipse cx="252" cy="118" rx="18" ry="15" fill="#e08820"/>
-              <ellipse cx="286" cy="112" rx="20" ry="17" fill="#c03020"/>
-              <line x1="252" y1="132" x2="252" y2="150" stroke="#5a3820" stroke-width="2.5"/>
-              <line x1="286" y1="128" x2="286" y2="148" stroke="#5a3820" stroke-width="2.5"/>
-              <path d="M 0 180 Q 60 132 140 138 Q 220 144 320 130 L 320 180 Z" fill="#5a3820"/>
-              <rect x="0" y="150" width="320" height="30" fill="url(#neSea)"/>
-              <rect width="320" height="180" fill="url(#neVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2019 &amp; 2025 &nbsp;·&nbsp; USA</div>
-            <h3 class="video-title" data-trip-title="newengland">New England</h3>
-            <p class="video-desc" data-trip-desc="newengland">I didn't just visit — I lived here for a few months as an au pair, which means I got the real version. October foliage that genuinely doesn't look real, covered bridges, apple orchards, and the kind of autumn that turns into a whole personality.</p>
-          </div>
-        </div>
-
-        <!-- New York 2018–2025 -->
-        <div class="video-card" onclick="openTrip('newyork')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="nySky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1428"/><stop offset="0.4" stop-color="#162040"/><stop offset="0.7" stop-color="#283860"/><stop offset="1" stop-color="#1a2848"/></linearGradient>
-                <radialGradient id="nyMoon" cx="0.2" cy="0.16" r="0.24"><stop offset="0" stop-color="#fff8e0"/><stop offset="0.35" stop-color="#f0e8b0" stop-opacity="0.5"/><stop offset="1" stop-color="#f0e8b0" stop-opacity="0"/></radialGradient>
-                <linearGradient id="nyWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101830"/><stop offset="1" stop-color="#080f1f"/></linearGradient>
-                <radialGradient id="nyVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.45"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#nySky)"/>
-              <circle cx="60" cy="28" r="38" fill="url(#nyMoon)"/>
-              <circle cx="60" cy="28" r="11" fill="#fff8e0"/>
-              <g fill="#fff" opacity="0.55"><circle cx="112" cy="14" r="1"/><circle cx="162" cy="8" r="1.2"/><circle cx="202" cy="18" r="1"/><circle cx="252" cy="11" r="0.8"/><circle cx="292" cy="7" r="1"/><circle cx="140" cy="28" r="0.8"/><circle cx="280" cy="24" r="1"/></g>
-              <rect x="0" y="138" width="320" height="42" fill="url(#nyWater)"/>
-              <!-- reflections -->
-              <g opacity="0.2"><rect x="100" y="140" width="6" height="36" fill="#f0d060"/><rect x="148" y="140" width="8" height="36" fill="#f0e060"/><rect x="192" y="142" width="5" height="32" fill="#f0d060"/><rect x="232" y="141" width="6" height="34" fill="#f0c050"/></g>
-              <!-- skyline -->
-              <g fill="#1a2040">
-                <rect x="0" y="108" width="20" height="34"/><rect x="16" y="92" width="14" height="50"/><rect x="28" y="102" width="18" height="40"/><rect x="44" y="112" width="12" height="30"/>
-                <rect x="54" y="88" width="22" height="52"/><rect x="60" y="82" width="10" height="8"/>
-                <rect x="74" y="96" width="16" height="44"/><rect x="88" y="92" width="14" height="48"/>
-                <!-- Empire State -->
-                <rect x="100" y="70" width="22" height="70"/>
-                <rect x="104" y="60" width="14" height="12"/><rect x="106" y="52" width="10" height="10"/><rect x="108" y="46" width="6" height="8"/><rect x="109" y="42" width="4" height="6"/>
-                <line x1="111" y1="28" x2="111" y2="42" stroke="#304060" stroke-width="2"/>
-                <circle cx="111" cy="26" r="2.5" fill="#f0e060" opacity="0.9"/>
-                <!-- Chrysler hint -->
-                <rect x="126" y="80" width="18" height="58"/>
-                <path d="M 126 80 Q 135 62 144 80 Z" fill="#243050"/>
-                <path d="M 128 70 Q 135 56 142 70 Z" fill="#243050"/>
-                <path d="M 130 62 Q 135 52 140 62 Z" fill="#243050"/>
-                <!-- right buildings -->
-                <rect x="146" y="88" width="16" height="50"/><rect x="164" y="78" width="20" height="60"/><rect x="168" y="72" width="12" height="8"/>
-                <rect x="184" y="92" width="14" height="46"/><rect x="196" y="82" width="18" height="56"/>
-                <rect x="212" y="98" width="14" height="40"/><rect x="224" y="86" width="20" height="52"/>
-                <rect x="242" y="104" width="16" height="34"/><rect x="256" y="90" width="18" height="48"/>
-                <rect x="272" y="100" width="22" height="38"/><rect x="292" y="86" width="28" height="52"/>
-              </g>
-              <!-- lit windows -->
-              <g fill="#f0d860" opacity="0.65">
-                <rect x="18" y="94" width="3" height="3"/><rect x="56" y="92" width="3" height="3"/><rect x="62" y="100" width="3" height="3"/>
-                <rect x="76" y="102" width="3" height="3"/><rect x="90" y="96" width="3" height="3"/>
-                <rect x="102" y="80" width="3" height="3"/><rect x="108" y="88" width="3" height="3"/><rect x="114" y="94" width="3" height="3"/>
-                <rect x="130" y="88" width="3" height="3"/><rect x="136" y="94" width="3" height="3"/>
-                <rect x="148" y="96" width="3" height="3"/><rect x="166" y="84" width="3" height="3"/><rect x="172" y="92" width="3" height="3"/>
-                <rect x="198" y="90" width="3" height="3"/><rect x="226" y="94" width="3" height="3"/><rect x="258" y="96" width="3" height="3"/>
-              </g>
-              <rect width="320" height="180" fill="url(#nyVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2018–2025 &nbsp;·&nbsp; USA</div>
-            <h3 class="video-title" data-trip-title="newyork">New York</h3>
-            <p class="video-desc" data-trip-desc="newyork">The city that gives you everything and also all of your anxiety. Delis at 3am, subway platform heat, and someone in Central Park playing an instrument you've never seen. Multiple visits and it somehow gets bigger every time.</p>
-          </div>
-        </div>
-
-        <!-- Amalfi Coast 2024 -->
-        <div class="video-card" onclick="openTrip('amalfi')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="amSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0dff4"/><stop offset="0.55" stop-color="#8ac8e8"/><stop offset="0.8" stop-color="#f4c07a"/><stop offset="1" stop-color="#f0a848"/></linearGradient>
-                <linearGradient id="amSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1890b8"/><stop offset="1" stop-color="#0e6888"/></linearGradient>
-                <radialGradient id="amSun" cx="0.76" cy="0.6" r="0.32"><stop offset="0" stop-color="#fff8e0"/><stop offset="0.5" stop-color="#fce4a0" stop-opacity="0.55"/><stop offset="1" stop-color="#fce4a0" stop-opacity="0"/></radialGradient>
-                <radialGradient id="amVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0a1e2c" stop-opacity="0.32"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#amSky)"/>
-              <circle cx="244" cy="105" r="58" fill="url(#amSun)"/>
-              <circle cx="244" cy="107" r="20" fill="#fff8e0"/>
-              <rect x="0" y="132" width="320" height="48" fill="url(#amSea)"/>
-              <!-- cliff -->
-              <path d="M 0 180 L 0 88 Q 28 70 58 80 Q 88 90 100 102 L 100 180 Z" fill="#8a7a5a"/>
-              <path d="M 0 180 L 0 94 Q 24 76 54 86 Q 78 96 96 108 L 96 180 Z" fill="#a08a68"/>
-              <!-- stacked houses -->
-              <rect x="4" y="118" width="20" height="20" fill="#f0e8d0"/><rect x="4" y="113" width="20" height="6" fill="#d87840"/>
-              <rect x="26" y="112" width="18" height="24" fill="#e8c8a8"/><rect x="26" y="107" width="18" height="6" fill="#d07030"/>
-              <rect x="46" y="116" width="16" height="20" fill="#f4d8b0"/><rect x="46" y="111" width="16" height="6" fill="#c86828"/>
-              <rect x="8" y="96" width="16" height="20" fill="#e8d8b8"/><rect x="8" y="91" width="16" height="6" fill="#c87840" opacity="0.8"/>
-              <rect x="26" y="90" width="18" height="24" fill="#f0e0c0"/><rect x="26" y="85" width="18" height="6" fill="#d07830" opacity="0.8"/>
-              <rect x="12" y="72" width="14" height="22" fill="#e4d4a4" opacity="0.9"/><rect x="12" y="67" width="14" height="6" fill="#c06820" opacity="0.7"/>
-              <!-- bell tower -->
-              <rect x="60" y="92" width="14" height="40" fill="#e8e0cc"/>
-              <path d="M 58 94 Q 67 80 76 94 Z" fill="#c07038"/>
-              <line x1="67" y1="74" x2="67" y2="81" stroke="#c0c0c0" stroke-width="1.5"/><line x1="63" y1="78" x2="71" y2="78" stroke="#c0c0c0" stroke-width="1.5"/>
-              <!-- lemon tree -->
-              <circle cx="88" cy="100" r="9" fill="#7a9a40" opacity="0.85"/>
-              <ellipse cx="84" cy="97" rx="2.5" ry="2" fill="#f0d030"/><ellipse cx="91" cy="100" rx="2.5" ry="2" fill="#f0d030"/><ellipse cx="87" cy="104" rx="2.5" ry="2" fill="#f0d030"/>
-              <g stroke="#fff" stroke-opacity="0.22" stroke-width="1.2" stroke-linecap="round"><line x1="130" y1="144" x2="170" y2="144"/><line x1="210" y1="152" x2="260" y2="152"/></g>
-              <rect width="320" height="180" fill="url(#amVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2024 &nbsp;·&nbsp; Italy</div>
-            <h3 class="video-title" data-trip-title="amalfi">Amalfi Coast</h3>
-            <p class="video-desc" data-trip-desc="amalfi">The most beautiful road I have ever been terrified on. Cliffs and lemons and pastel houses stacked because someone ran out of flat land. The limoncello is obligatory. The vertigo is free.</p>
-          </div>
-        </div>
-
-        <!-- California 2023 -->
-        <div class="video-card" onclick="openTrip('california')">
-          <div class="video-thumb">
-            <div class="thumb-bg">
-              <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-                <defs>
-                  <linearGradient id="caSky" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#f9d9b0"/>
-                    <stop offset="0.42" stop-color="#f3ab74"/>
-                    <stop offset="0.72" stop-color="#e7834e"/>
-                    <stop offset="1" stop-color="#d56b3c"/>
-                  </linearGradient>
-                  <radialGradient id="caGlow" cx="0.5" cy="0.54" r="0.5">
-                    <stop offset="0" stop-color="#fff4d8"/>
-                    <stop offset="0.5" stop-color="#ffe2a6" stop-opacity="0.7"/>
-                    <stop offset="1" stop-color="#ffe2a6" stop-opacity="0"/>
-                  </radialGradient>
-                  <linearGradient id="caSea" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#dd8a52"/>
-                    <stop offset="1" stop-color="#b35c30"/>
-                  </linearGradient>
-                  <linearGradient id="caGlint" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#ffeec2" stop-opacity="0.85"/>
-                    <stop offset="1" stop-color="#ffeec2" stop-opacity="0"/>
-                  </linearGradient>
-                  <radialGradient id="caVig" cx="0.5" cy="0.45" r="0.75">
-                    <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
-                    <stop offset="1" stop-color="#3a1505" stop-opacity="0.34"/>
-                  </radialGradient>
-                </defs>
-                <rect width="320" height="180" fill="url(#caSky)"/>
-                <circle cx="160" cy="98" r="78" fill="url(#caGlow)"/>
-                <circle cx="160" cy="100" r="29" fill="#fff2cf"/>
-                <!-- Sea -->
-                <rect x="0" y="120" width="320" height="60" fill="url(#caSea)"/>
-                <rect x="149" y="120" width="22" height="60" fill="url(#caGlint)"/>
-                <g stroke="#ffeec2" stroke-opacity="0.3" stroke-width="1.4" stroke-linecap="round">
-                  <line x1="146" y1="132" x2="174" y2="132"/>
-                  <line x1="143" y1="143" x2="177" y2="143"/>
-                  <line x1="148" y1="154" x2="172" y2="154"/>
-                  <line x1="151" y1="165" x2="169" y2="165"/>
-                </g>
-                <!-- Golden Gate silhouette -->
-                <g fill="#8a3a1c" stroke="#8a3a1c">
-                  <path d="M 0 80 Q 52 50 101 45 Q 130 99 160 99 Q 190 99 219 45 Q 268 50 320 80" stroke-width="2.4" fill="none"/>
-                  <g stroke-width="1.1" stroke-opacity="0.85">
-                    <line x1="116" y1="60" x2="116" y2="120"/>
-                    <line x1="131" y1="73" x2="131" y2="120"/>
-                    <line x1="146" y1="86" x2="146" y2="120"/>
-                    <line x1="160" y1="99" x2="160" y2="120"/>
-                    <line x1="174" y1="86" x2="174" y2="120"/>
-                    <line x1="189" y1="73" x2="189" y2="120"/>
-                    <line x1="204" y1="60" x2="204" y2="120"/>
-                  </g>
-                  <rect x="96" y="42" width="10" height="78" stroke="none"/>
-                  <rect x="214" y="42" width="10" height="78" stroke="none"/>
-                  <rect x="92" y="58" width="18" height="3" stroke="none"/>
-                  <rect x="92" y="80" width="18" height="3" stroke="none"/>
-                  <rect x="210" y="58" width="18" height="3" stroke="none"/>
-                  <rect x="210" y="80" width="18" height="3" stroke="none"/>
-                  <rect x="0" y="118" width="320" height="5" stroke="none"/>
-                </g>
-                <rect width="320" height="180" fill="url(#caVig)"/>
-                <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-              </svg>
-            </div>
-            <div class="thumb-play"><span>▶</span></div>
-          </div>
-          <div class="video-info">
-            <div class="video-badge">2023 &nbsp;·&nbsp; USA</div>
-            <h3 class="video-title" data-trip-title="california">California Road Trip</h3>
-            <p class="video-desc" data-trip-desc="california">Two weeks, gorgeous sunsets, LA nights, and one car tow that absolutely nobody saw coming. 10/10 would road trip again, maybe with a better parking strategy.</p>
-          </div>
-        </div>
-
-        <!-- Rome 2023 -->
-        <div class="video-card" onclick="openTrip('rome')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="roSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9d0a0"/><stop offset="0.4" stop-color="#f4a058"/><stop offset="0.7" stop-color="#e06030"/><stop offset="1" stop-color="#c04020"/></linearGradient>
-                <radialGradient id="roGlow" cx="0.5" cy="0.65" r="0.55"><stop offset="0" stop-color="#fff4d0"/><stop offset="0.5" stop-color="#ffd890" stop-opacity="0.6"/><stop offset="1" stop-color="#ffd890" stop-opacity="0"/></radialGradient>
-                <linearGradient id="roGnd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a4020"/><stop offset="1" stop-color="#6a2c10"/></linearGradient>
-                <radialGradient id="roVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#4a1808" stop-opacity="0.35"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#roSky)"/>
-              <circle cx="160" cy="108" r="72" fill="url(#roGlow)"/>
-              <circle cx="160" cy="110" r="25" fill="#fff8d8"/>
-              <rect x="0" y="142" width="320" height="38" fill="url(#roGnd)"/>
-              <!-- Colosseum silhouette -->
-              <path d="M 18 142 Q 160 38 302 142 Z" fill="#5a2010"/>
-              <!-- arch cutouts tier 1 -->
-              <g fill="#f4a058">
-                <rect x="48" y="112" width="18" height="30" rx="9"/><rect x="76" y="108" width="18" height="34" rx="9"/>
-                <rect x="104" y="104" width="18" height="38" rx="9"/><rect x="132" y="102" width="18" height="40" rx="9"/>
-                <rect x="160" y="102" width="18" height="40" rx="9"/><rect x="188" y="104" width="18" height="38" rx="9"/>
-                <rect x="216" y="108" width="18" height="34" rx="9"/><rect x="244" y="112" width="18" height="30" rx="9"/>
-              </g>
-              <!-- arch cutouts tier 2 -->
-              <g fill="#f4a058">
-                <rect x="72" y="88" width="14" height="22" rx="7"/><rect x="96" y="82" width="14" height="24" rx="7"/>
-                <rect x="120" y="78" width="14" height="26" rx="7"/><rect x="146" y="76" width="14" height="28" rx="7"/>
-                <rect x="172" y="76" width="14" height="28" rx="7"/><rect x="198" y="78" width="14" height="26" rx="7"/>
-                <rect x="222" y="82" width="14" height="24" rx="7"/><rect x="246" y="88" width="14" height="22" rx="7"/>
-              </g>
-              <rect width="320" height="180" fill="url(#roVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2023 &nbsp;·&nbsp; Italy</div>
-            <h3 class="video-title" data-trip-title="rome">Rome</h3>
-            <p class="video-desc" data-trip-desc="rome">Pasta, history, more pasta, and gelato three times a day because you're on holiday and nobody can stop you. Every corner has a fountain and every fountain has at least one tourist in it.</p>
-          </div>
-        </div>
-
-        <!-- Copenhagen 2023 -->
-        <div class="video-card" onclick="openTrip('copenhagen')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="cpSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a8d4e8"/><stop offset="0.6" stop-color="#c8e4f0"/><stop offset="1" stop-color="#d4eaf5"/></linearGradient>
-                <linearGradient id="cpWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a9ab8"/><stop offset="1" stop-color="#3a7898"/></linearGradient>
-                <radialGradient id="cpVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0a2030" stop-opacity="0.28"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#cpSky)"/>
-              <rect x="0" y="122" width="320" height="58" fill="url(#cpWater)"/>
-              <!-- reflections -->
-              <g opacity="0.3"><rect x="18" y="124" width="22" height="38" fill="#c0303a"/><rect x="54" y="124" width="20" height="38" fill="#e8a040"/><rect x="86" y="124" width="18" height="38" fill="#4a7a38"/><rect x="116" y="124" width="20" height="38" fill="#c8a060"/><rect x="150" y="124" width="22" height="38" fill="#c04040"/><rect x="188" y="124" width="18" height="38" fill="#a03030"/><rect x="218" y="124" width="24" height="38" fill="#e8c878"/><rect x="256" y="124" width="20" height="38" fill="#3a6a50"/></g>
-              <!-- Nyhavn buildings -->
-              <rect x="14" y="56" width="26" height="68" fill="#c0303a"/><path d="M 14 58 L 27 42 L 40 58 Z" fill="#a02828"/>
-              <rect x="42" y="48" width="24" height="76" fill="#e8a040"/><path d="M 40 50 L 54 34 L 68 50 Z" fill="#c8802a"/>
-              <rect x="68" y="60" width="22" height="64" fill="#4a7a38"/><path d="M 66 62 L 79 46 L 92 62 Z" fill="#3a6028"/>
-              <rect x="92" y="52" width="26" height="72" fill="#c8a060"/><path d="M 90 54 L 105 38 L 120 54 Z" fill="#a88040"/>
-              <rect x="120" y="58" width="24" height="66" fill="#c04040"/><path d="M 118 60 L 132 44 L 146 60 Z" fill="#a02828"/>
-              <rect x="146" y="50" width="22" height="74" fill="#a03030"/><path d="M 144 52 L 157 38 L 170 52 Z" fill="#802020"/>
-              <rect x="170" y="44" width="30" height="80" fill="#e8c878"/><path d="M 168 46 L 185 30 L 202 46 Z" fill="#c8a040"/>
-              <rect x="202" y="56" width="24" height="68" fill="#3a6a50"/><path d="M 200 58 L 214 42 L 228 58 Z" fill="#2a5040"/>
-              <rect x="228" y="52" width="26" height="72" fill="#c8946c"/><path d="M 226 54 L 241 38 L 256 54 Z" fill="#a87450"/>
-              <rect x="256" y="60" width="30" height="64" fill="#5878a8"/><path d="M 254 62 L 271 44 L 288 62 Z" fill="#485888"/>
-              <!-- windows -->
-              <g fill="#8fd6e4" opacity="0.5"><rect x="20" y="76" width="7" height="9" rx="3.5"/><rect x="29" y="76" width="7" height="9" rx="3.5"/><rect x="47" y="68" width="7" height="9" rx="3.5"/><rect x="57" y="68" width="7" height="9" rx="3.5"/><rect x="72" y="78" width="6" height="8" rx="3"/><rect x="80" y="78" width="6" height="8" rx="3"/><rect x="97" y="70" width="7" height="9" rx="3.5"/><rect x="107" y="70" width="7" height="9" rx="3.5"/><rect x="125" y="74" width="6" height="8" rx="3"/><rect x="134" y="74" width="6" height="8" rx="3"/><rect x="150" y="68" width="6" height="9" rx="3"/><rect x="158" y="68" width="6" height="9" rx="3"/><rect x="176" y="62" width="8" height="10" rx="4"/><rect x="187" y="62" width="8" height="10" rx="4"/><rect x="207" y="74" width="6" height="8" rx="3"/><rect x="232" y="70" width="7" height="9" rx="3.5"/><rect x="260" y="76" width="6" height="8" rx="3"/></g>
-              <!-- masts -->
-              <line x1="36" y1="88" x2="36" y2="130" stroke="#8a6030" stroke-width="1.5" opacity="0.5"/>
-              <line x1="112" y1="92" x2="112" y2="130" stroke="#8a6030" stroke-width="1.5" opacity="0.5"/>
-              <line x1="192" y1="84" x2="192" y2="130" stroke="#8a6030" stroke-width="1.5" opacity="0.5"/>
-              <g stroke="#fff" stroke-opacity="0.18" stroke-width="1" stroke-linecap="round"><line x1="40" y1="142" x2="80" y2="142"/><line x1="160" y1="150" x2="210" y2="150"/></g>
-              <rect width="320" height="180" fill="url(#cpVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2023 &nbsp;·&nbsp; Denmark</div>
-            <h3 class="video-title" data-trip-title="copenhagen">Copenhagen</h3>
-            <p class="video-desc" data-trip-desc="copenhagen">Impossibly cool, architecturally perfect, and expensive enough to make you cry into your craft beer. The pastries are so good you'll reorganise your entire personality around them.</p>
-          </div>
-        </div>
-
-        <!-- Sicily 2023 -->
-        <div class="video-card" onclick="openTrip('sicily')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="siSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8cce0"/><stop offset="0.4" stop-color="#d4a870"/><stop offset="0.65" stop-color="#e08840"/><stop offset="1" stop-color="#c86030"/></linearGradient>
-                <linearGradient id="siSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2880a0"/><stop offset="1" stop-color="#1a5c78"/></linearGradient>
-                <radialGradient id="siVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#1a0808" stop-opacity="0.38"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#siSky)"/>
-              <path d="M 70 180 L 176 28 L 282 180 Z" fill="#3a2a20"/>
-              <path d="M 92 180 L 176 44 L 260 180 Z" fill="#4a3828"/>
-              <!-- lava glow -->
-              <circle cx="176" cy="30" r="16" fill="#ff6020" opacity="0.45"/>
-              <circle cx="176" cy="32" r="8" fill="#ff8030" opacity="0.65"/>
-              <!-- smoke -->
-              <ellipse cx="164" cy="20" rx="28" ry="13" fill="#888" opacity="0.4"/>
-              <ellipse cx="188" cy="12" rx="22" ry="11" fill="#999" opacity="0.3"/>
-              <ellipse cx="208" cy="6" rx="18" ry="9" fill="#aaa" opacity="0.22"/>
-              <rect x="0" y="142" width="320" height="38" fill="url(#siSea)"/>
-              <!-- coastal village -->
-              <g fill="#e8d0a0"><rect x="18" y="118" width="18" height="28"/><rect x="38" y="112" width="20" height="34"/><rect x="60" y="120" width="16" height="24"/></g>
-              <rect x="18" y="114" width="18" height="5" fill="#c87840"/><rect x="38" y="108" width="20" height="5" fill="#d07030"/><rect x="60" y="116" width="16" height="5" fill="#c86828"/>
-              <!-- Greek temple hint -->
-              <g fill="#d4b880" opacity="0.65"><rect x="210" y="122" width="8" height="24"/><rect x="226" y="122" width="8" height="24"/><rect x="242" y="122" width="8" height="24"/><rect x="258" y="122" width="8" height="24"/><rect x="206" y="120" width="68" height="4"/><rect x="210" y="144" width="60" height="4"/></g>
-              <g stroke="#fff" stroke-opacity="0.2" stroke-width="1.2" stroke-linecap="round"><line x1="80" y1="154" x2="120" y2="154"/><line x1="160" y1="160" x2="210" y2="160"/></g>
-              <rect width="320" height="180" fill="url(#siVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2023 &nbsp;·&nbsp; Italy</div>
-            <h3 class="video-title" data-trip-title="sicily">Sicily</h3>
-            <p class="video-desc" data-trip-desc="sicily">A volcanic island that smells of orange blossoms and makes the best arancini on earth. Etna, ancient temples, and enough seafood to feed a small navy. Sicily doesn't ask for your attention — it demands it.</p>
-          </div>
-        </div>
-
-        <!-- Edinburgh 2023 -->
-        <div class="video-card" onclick="openTrip('edinburgh')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="edSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8090a8"/><stop offset="0.45" stop-color="#b0a8c0"/><stop offset="1" stop-color="#a8a0b8"/></linearGradient>
-                <linearGradient id="edGnd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a5a38"/><stop offset="1" stop-color="#384830"/></linearGradient>
-                <radialGradient id="edVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#1a1428" stop-opacity="0.42"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#edSky)"/>
-              <ellipse cx="160" cy="110" rx="200" ry="38" fill="#c8c0d4" opacity="0.28"/>
-              <!-- volcanic rock -->
-              <path d="M 55 180 L 68 128 L 90 108 L 135 98 L 175 96 L 215 102 L 242 118 L 262 180 Z" fill="#302820"/>
-              <path d="M 78 180 L 88 134 L 108 116 L 142 106 L 178 104 L 208 110 L 232 126 L 250 180 Z" fill="#3a3028"/>
-              <!-- castle keep -->
-              <g fill="#2a2420">
-                <rect x="108" y="62" width="42" height="48"/>
-                <rect x="106" y="56" width="10" height="8"/><rect x="120" y="56" width="10" height="8"/><rect x="134" y="56" width="10" height="8"/>
-                <!-- tall tower -->
-                <rect x="150" y="42" width="22" height="68"/>
-                <rect x="148" y="36" width="8" height="8"/><rect x="158" y="36" width="8" height="8"/><rect x="168" y="36" width="8" height="8"/>
-                <!-- flag -->
-                <line x1="161" y1="24" x2="161" y2="37" stroke="#888" stroke-width="1.5"/>
-                <polygon points="161,24 174,28 161,32" fill="#c0303a"/>
-                <!-- gate wall -->
-                <rect x="58" y="86" width="50" height="22"/>
-                <rect x="76" y="86" width="14" height="22" rx="7" fill="#3a3028"/>
-                <!-- right wall -->
-                <rect x="170" y="78" width="62" height="18"/>
-                <rect x="172" y="74" width="8" height="6"/><rect x="184" y="74" width="8" height="6"/><rect x="196" y="74" width="8" height="6"/><rect x="208" y="74" width="8" height="6"/><rect x="220" y="74" width="8" height="6"/>
-              </g>
-              <!-- lit windows -->
-              <rect x="116" y="76" width="8" height="10" fill="#f0d870" opacity="0.6"/>
-              <rect x="128" y="76" width="8" height="10" fill="#f0d870" opacity="0.5"/>
-              <rect x="154" y="56" width="6" height="8" fill="#f0d870" opacity="0.5"/>
-              <!-- hills -->
-              <path d="M 0 158 Q 80 140 160 148 Q 240 156 320 144 L 320 180 L 0 180 Z" fill="url(#edGnd)"/>
-              <rect width="320" height="180" fill="url(#edVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2023 &nbsp;·&nbsp; Scotland</div>
-            <h3 class="video-title" data-trip-title="edinburgh">Edinburgh</h3>
-            <p class="video-desc" data-trip-desc="edinburgh">A city built for autumn. Cobblestones and castle silhouettes in the mist, closes and wynds that feel straight out of Harry Potter, and the whole city leaning into Halloween like nowhere else I've been. I came for the spooky season and left completely enchanted.</p>
-          </div>
-        </div>
-
-        <!-- Rhodes 2020 -->
-        <div class="video-card" onclick="openTrip('rhodes')">
-          <div class="video-thumb"><div class="thumb-bg">
-            <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-              <defs>
-                <linearGradient id="rhSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8e4f7"/><stop offset="0.5" stop-color="#8ccae6"/><stop offset="0.78" stop-color="#f6dca6"/><stop offset="1" stop-color="#f4c98a"/></linearGradient>
-                <linearGradient id="rhSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a8cb0"/><stop offset="1" stop-color="#0e6888"/></linearGradient>
-                <radialGradient id="rhVig" cx="0.5" cy="0.45" r="0.75"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0a2d3f" stop-opacity="0.32"/></radialGradient>
-              </defs>
-              <rect width="320" height="180" fill="url(#rhSky)"/>
-              <circle cx="240" cy="78" r="22" fill="#fffbe0"/>
-              <rect x="0" y="126" width="320" height="54" fill="url(#rhSea)"/>
-              <rect x="0" y="122" width="320" height="6" fill="#b09060"/>
-              <!-- white church body -->
-              <rect x="104" y="90" width="60" height="36" fill="#f0ecdf"/>
-              <!-- blue dome -->
-              <path d="M 104 90 Q 134 64 164 90 Z" fill="#1e7bb0"/>
-              <ellipse cx="134" cy="90" rx="30" ry="8" fill="#1a6fa0"/>
-              <!-- cross -->
-              <line x1="134" y1="56" x2="134" y2="72" stroke="#f0ecdf" stroke-width="2"/>
-              <line x1="128" y1="62" x2="140" y2="62" stroke="#f0ecdf" stroke-width="2"/>
-              <!-- bell tower -->
-              <rect x="68" y="78" width="22" height="50" fill="#e8e2d4"/>
-              <path d="M 66 80 Q 79 62 92 80 Z" fill="#1e7bb0"/>
-              <!-- side buildings -->
-              <rect x="164" y="102" width="32" height="24" fill="#e8e2d4"/>
-              <rect x="48" y="106" width="24" height="20" fill="#ede8da"/>
-              <!-- olive trees -->
-              <circle cx="44" cy="116" r="11" fill="#7a9a5a" opacity="0.75"/>
-              <line x1="44" y1="126" x2="44" y2="134" stroke="#5a6a40" stroke-width="2"/>
-              <circle cx="188" cy="114" r="9" fill="#7a9a5a" opacity="0.7"/>
-              <g stroke="#fff" stroke-opacity="0.2" stroke-width="1.2" stroke-linecap="round"><line x1="60" y1="140" x2="100" y2="140"/><line x1="200" y1="148" x2="250" y2="148"/></g>
-              <rect width="320" height="180" fill="url(#rhVig)"/>
-              <rect x="7" y="7" width="306" height="166" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1"/>
-            </svg>
-          </div><div class="thumb-play"><span>▶</span></div></div>
-          <div class="video-info">
-            <div class="video-badge">2020 &nbsp;·&nbsp; Greece</div>
-            <h3 class="video-title" data-trip-title="rhodes">Rhodes</h3>
-            <p class="video-desc" data-trip-desc="rhodes">Sun, sea, ancient ruins, and a very suspicious tan line. Turquoise water, excellent wine, and the kind of heat that turns you into a very willing nap enthusiast.</p>
-          </div>
-        </div>
-
-      
       </div>
 
       <!-- ── Trip detail panel (shown when a card is clicked) ── -->
@@ -2732,8 +2218,8 @@
 
         <!-- Owner mode: paste video link for this trip -->
         <div class="owner-row" id="td-owner-link-row" style="margin-bottom:1.5rem;gap:8px;align-items:center">
-          <input class="owner-input" id="td-video-input" type="text" placeholder="Paste YouTube or Vimeo link for this trip…" />
-          <button class="owner-save" id="td-video-save" onclick="saveTripLink()">Save</button>
+          <input class="owner-input" id="td-video-input" type="text" data-i18n-ph="ph-video-link" placeholder="Paste YouTube or Vimeo link for this trip…" />
+          <button class="owner-save" id="td-video-save" onclick="saveTripLink()" data-i18n="btn-save">Save</button>
           <span class="owner-note" id="td-video-note"></span>
         </div>
 
@@ -2745,7 +2231,7 @@
 
         <!-- See it on the map / hear how it sounded -->
         <a class="trip-map-link" id="td-map-btn" onclick="goToMap()" data-i18n="td-maplink">📍 See where it was on the map →</a>
-        <button class="trip-playlist-link" id="td-playlist-btn" onclick="goToTripPlaylist()">🎵 Hear how it sounded →</button>
+        <button class="trip-playlist-link" id="td-playlist-btn" onclick="goToTripPlaylist()" data-i18n="td-playlistlink">🎵 Hear how it sounded →</button>
 
         <!-- The vlog (plays right here) -->
         <div class="trip-section" id="td-video-section">
@@ -2771,7 +2257,7 @@
 
           <div class="trip-gallery-grid" id="td-gallery-grid"></div>
           <p class="trip-gallery-empty" id="td-gallery-empty" style="display:none" data-i18n="td-nophotos">No photos yet — check back soon.</p>
-          <p class="trip-gallery-empty" id="td-owner-hint" style="display:none">Drop some in above ↑</p>
+          <p class="trip-gallery-empty" id="td-owner-hint" style="display:none" data-i18n="td-ownerhint">Drop some in above ↑</p>
         </div>
       </div>
 
@@ -2808,7 +2294,7 @@
 
         <div class="outfit-form-row">
           <select id="new-outfit-trip" onchange="fillOutfitTrip(this.value)">
-            <option value="">— Select trip or home —</option>
+            <option value="" data-i18n="outfits-select">— Select trip or home —</option>
           </select>
         </div>
         <div class="outfit-form-row">
@@ -2845,7 +2331,7 @@
         <h2 class="sub-title" data-i18n="map-title">Where I've Been</h2>
         <p class="sub-sub" data-i18n="map-sub">Pins dropped around the globe</p>
       </div>
-      <p class="map-save-hint">Click any card to explore the map — you can save locations straight from Google Maps.</p>
+      <p class="map-save-hint" data-i18n="map-hint">Click any card to explore the map — you can save locations straight from Google Maps.</p>
       <div class="map-grid">
 
         <div class="map-card" onclick="openMapModal('mallorca')">
@@ -2855,7 +2341,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2026 &nbsp;·&nbsp; Spain</div>
-            <h3 class="map-title">🏖️ &nbsp; Mallorca</h3>
+            <h3 class="map-title" data-i18n="map-t-mallorca">🏖️ &nbsp; Mallorca</h3>
           </div>
         </div>
 
@@ -2866,7 +2352,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2026 &nbsp;·&nbsp; Maldives</div>
-            <h3 class="map-title">🐠 &nbsp; Maldives</h3>
+            <h3 class="map-title" data-i18n="map-t-maldives">🐠 &nbsp; Maldives</h3>
           </div>
         </div>
 
@@ -2877,7 +2363,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &amp; 2026 &nbsp;·&nbsp; France</div>
-            <h3 class="map-title">🗼 &nbsp; Paris</h3>
+            <h3 class="map-title" data-i18n="map-t-paris">🗼 &nbsp; Paris</h3>
           </div>
         </div>
 
@@ -2888,7 +2374,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2022–2026 &nbsp;·&nbsp; Belgium</div>
-            <h3 class="map-title">🧇 &nbsp; Brussels</h3>
+            <h3 class="map-title" data-i18n="map-t-brussels">🧇 &nbsp; Brussels</h3>
           </div>
         </div>
 
@@ -2899,7 +2385,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2025 &nbsp;·&nbsp; Austria</div>
-            <h3 class="map-title">☕ &nbsp; Vienna</h3>
+            <h3 class="map-title" data-i18n="map-t-vienna">☕ &nbsp; Vienna</h3>
           </div>
         </div>
 
@@ -2910,7 +2396,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2025 &nbsp;·&nbsp; Thailand</div>
-            <h3 class="map-title">🛵 &nbsp; Thailand</h3>
+            <h3 class="map-title" data-i18n="map-t-thailand">🛵 &nbsp; Thailand</h3>
           </div>
         </div>
 
@@ -2921,7 +2407,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &amp; 2025 &nbsp;·&nbsp; Italy</div>
-            <h3 class="map-title">🎨 &nbsp; Milan</h3>
+            <h3 class="map-title" data-i18n="map-t-milan">🎨 &nbsp; Milan</h3>
           </div>
         </div>
 
@@ -2932,7 +2418,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2019 &amp; 2025 &nbsp;·&nbsp; USA</div>
-            <h3 class="map-title">🍂 &nbsp; New England</h3>
+            <h3 class="map-title" data-i18n="map-t-newengland">🍂 &nbsp; New England</h3>
           </div>
         </div>
 
@@ -2943,7 +2429,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2018–2025 &nbsp;·&nbsp; USA</div>
-            <h3 class="map-title">🗽 &nbsp; New York</h3>
+            <h3 class="map-title" data-i18n="map-t-newyork">🗽 &nbsp; New York</h3>
           </div>
         </div>
 
@@ -2954,7 +2440,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2024 &nbsp;·&nbsp; Italy</div>
-            <h3 class="map-title">🍋 &nbsp; Amalfi Coast</h3>
+            <h3 class="map-title" data-i18n="map-t-amalfi">🍋 &nbsp; Amalfi Coast</h3>
           </div>
         </div>
 
@@ -2965,7 +2451,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &nbsp;·&nbsp; USA</div>
-            <h3 class="map-title">🌅 &nbsp; California</h3>
+            <h3 class="map-title" data-i18n="map-t-california">🌅 &nbsp; California</h3>
           </div>
         </div>
 
@@ -2976,7 +2462,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &nbsp;·&nbsp; Italy</div>
-            <h3 class="map-title">🏺 &nbsp; Rome</h3>
+            <h3 class="map-title" data-i18n="map-t-rome">🏺 &nbsp; Rome</h3>
           </div>
         </div>
 
@@ -2987,7 +2473,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &nbsp;·&nbsp; Denmark</div>
-            <h3 class="map-title">🧁 &nbsp; Copenhagen</h3>
+            <h3 class="map-title" data-i18n="map-t-copenhagen">🧁 &nbsp; Copenhagen</h3>
           </div>
         </div>
 
@@ -2998,7 +2484,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &nbsp;·&nbsp; Italy</div>
-            <h3 class="map-title">🌋 &nbsp; Sicily</h3>
+            <h3 class="map-title" data-i18n="map-t-sicily">🌋 &nbsp; Sicily</h3>
           </div>
         </div>
 
@@ -3009,7 +2495,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2023 &nbsp;·&nbsp; Scotland</div>
-            <h3 class="map-title">🏰 &nbsp; Edinburgh</h3>
+            <h3 class="map-title" data-i18n="map-t-edinburgh">🏰 &nbsp; Edinburgh</h3>
           </div>
         </div>
 
@@ -3020,7 +2506,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">2020 &nbsp;·&nbsp; Greece</div>
-            <h3 class="map-title">🏛️ &nbsp; Rhodes</h3>
+            <h3 class="map-title" data-i18n="map-t-rhodes">🏛️ &nbsp; Rhodes</h3>
           </div>
         </div>
 
@@ -3031,7 +2517,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">Photo Diary &nbsp;·&nbsp; Poland</div>
-            <h3 class="map-title">🌲 &nbsp; Poland</h3>
+            <h3 class="map-title" data-i18n="map-t-poland">🌲 &nbsp; Poland</h3>
           </div>
         </div>
 
@@ -3042,7 +2528,7 @@
           </div>
           <div class="map-info">
             <div class="map-badge">Photo Diary &nbsp;·&nbsp; Germany</div>
-            <h3 class="map-title">🎸 &nbsp; Berlin</h3>
+            <h3 class="map-title" data-i18n="map-t-berlin">🎸 &nbsp; Berlin</h3>
           </div>
         </div>
 
@@ -3098,11 +2584,11 @@
               </div>
               <div class="playlist-body">
                 <div class="owner-row pl-link-row">
-                  <input class="owner-input" id="pl-link-input-california" type="url" placeholder="Paste YouTube or Spotify playlist URL…" />
-                  <button class="owner-save" onclick="savePlaylistLink('california')">Save</button>
+                  <input class="owner-input" id="pl-link-input-california" type="url" data-i18n-ph="ph-pl-link" placeholder="Paste YouTube or Spotify playlist URL…" />
+                  <button class="owner-save" onclick="savePlaylistLink('california')" data-i18n="btn-save">Save</button>
                   <span class="owner-note" id="pl-link-note-california"></span>
                 </div>
-                <a class="playlist-listen-btn" id="pl-listen-california" href="" target="_blank" rel="noopener" style="display:none">▶ Press play. You're welcome.</a>
+                <a class="playlist-listen-btn" data-i18n="pl-listen" id="pl-listen-california" href="" target="_blank" rel="noopener" style="display:none">▶ Press play. You're welcome.</a>
                 <div class="playlist-songs">
                   <p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p>
                 </div>
@@ -3119,11 +2605,11 @@
               </div>
               <div class="playlist-body">
                 <div class="owner-row pl-link-row">
-                  <input class="owner-input" id="pl-link-input-mallorca" type="url" placeholder="Paste YouTube or Spotify playlist URL…" />
-                  <button class="owner-save" onclick="savePlaylistLink('mallorca')">Save</button>
+                  <input class="owner-input" id="pl-link-input-mallorca" type="url" data-i18n-ph="ph-pl-link" placeholder="Paste YouTube or Spotify playlist URL…" />
+                  <button class="owner-save" onclick="savePlaylistLink('mallorca')" data-i18n="btn-save">Save</button>
                   <span class="owner-note" id="pl-link-note-mallorca"></span>
                 </div>
-                <a class="playlist-listen-btn" id="pl-listen-mallorca" href="" target="_blank" rel="noopener" style="display:none">▶ Press play. You're welcome.</a>
+                <a class="playlist-listen-btn" data-i18n="pl-listen" id="pl-listen-mallorca" href="" target="_blank" rel="noopener" style="display:none">▶ Press play. You're welcome.</a>
                 <div class="playlist-songs">
                   <div class="playlist-song"><span class="song-num">01</span><span class="song-title">Stereo Love</span><span class="song-artist">Edward Maya &amp; Vika Jigulina</span></div>
                   <div class="playlist-song"><span class="song-num">02</span><span class="song-title">Eurosummer</span><span class="song-artist">Zara Larsson</span></div>
@@ -3283,7 +2769,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Bin Nicht Kalt Nur Deutsch</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-call-it">
@@ -3291,7 +2777,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Call It What You Want</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-dancing-candlelight">
@@ -3299,7 +2785,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Dancing in the Candlelight</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-everything-amber">
@@ -3307,7 +2793,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Everything Turns Amber</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-fighting-dragons">
@@ -3315,7 +2801,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Fighting Dragons with Taylor</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-from-ashes">
@@ -3323,7 +2809,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">From Ashes We Will Rise</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-ghous">
@@ -3331,7 +2817,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Ghous Just Wanna Have Fun</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-hot-girls">
@@ -3339,7 +2825,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Hot Girls Don't Wait in Line</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-long-live-cowgirls">
@@ -3347,7 +2833,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Long Live Cowgirls</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-naked-poetry">
@@ -3355,7 +2841,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Naked Poetry</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-once-upon-childhood">
@@ -3363,7 +2849,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Once Upon a Childhood</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-polish-nutki">
@@ -3371,7 +2857,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Polish Nutki Suki</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-smiling-blues">
@@ -3379,7 +2865,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Smiling Through the Blues</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-road-so-far">
@@ -3387,7 +2873,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">The Road So Far</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-uczta-sanah">
@@ -3395,7 +2881,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Uczta u Sanah</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-vinyl-glitter">
@@ -3403,7 +2889,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Vinyl &amp; Glitter</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
             <div class="playlist-item" id="pl-wrapped-december">
@@ -3411,7 +2897,7 @@
                 <div class="playlist-header-left"><span class="playlist-name">Wrapped in December</span></div>
                 <span class="playlist-chevron">▼</span>
               </div>
-              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty">Songs coming soon.</p></div></div>
+              <div class="playlist-body"><div class="playlist-songs"><p class="playlist-empty" data-i18n="songs-soon">Songs coming soon.</p></div></div>
             </div>
 
           </div>
@@ -3564,20 +3050,20 @@
   </div>
 
   <!-- ── Owner mode toggle (only you use this) ── -->
-  <button class="owner-toggle" onclick="toggleOwner()" title="Log in to add or edit content">⚙ &nbsp; Owner mode</button>
+  <button class="owner-toggle" onclick="toggleOwner()" title="Log in to add or edit content" data-i18n="owner-toggle">⚙ &nbsp; Owner mode</button>
 
   <!-- ── Owner login modal ── -->
   <div class="login-overlay" id="login-overlay" onclick="loginBackdrop(event)">
     <div class="login-box">
-      <h3>Owner login</h3>
-      <p>Sign in to edit your site.</p>
-      <input type="email" id="login-email" placeholder="Email" autocomplete="username" />
+      <h3 data-i18n="login-title">Owner login</h3>
+      <p data-i18n="login-sub">Sign in to edit your site.</p>
+      <input type="email" id="login-email" placeholder="Email" autocomplete="username" data-i18n-ph="ph-email" />
       <input type="password" id="login-password" placeholder="Password" autocomplete="current-password"
-             onkeydown="if(event.key==='Enter') doLogin()" />
+             onkeydown="if(event.key==='Enter') doLogin()" data-i18n-ph="ph-password" />
       <div class="login-error" id="login-error"></div>
       <div class="login-actions">
-        <button class="login-btn ghost" onclick="closeLogin()">Cancel</button>
-        <button class="login-btn primary" id="login-submit" onclick="doLogin()">Log in</button>
+        <button class="login-btn ghost" onclick="closeLogin()" data-i18n="login-cancel">Cancel</button>
+        <button class="login-btn primary" id="login-submit" onclick="doLogin()" data-i18n="login-submit">Log in</button>
       </div>
     </div>
   </div>
@@ -3585,7 +3071,7 @@
   <!-- ── Video overlay player ── -->
   <div class="video-overlay" id="video-overlay" onclick="closeVideo(event)">
     <div class="overlay-inner">
-      <button class="overlay-close" onclick="closeOverlay()">✕ &nbsp; Close</button>
+      <button class="overlay-close" onclick="closeOverlay()" data-i18n="map-close">✕ &nbsp; Close</button>
       <iframe id="overlay-frame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>
   </div>
@@ -3604,8 +3090,72 @@
 
     const TRANSLATIONS = {
       en: {
+        'pp-country': 'Republic of Wonderland',
+        'pp-docno': 'Passport No.',
+        'pp-passport': 'Passport · Passeport',
+        'pp-type': 'Type',
+        'pp-f-name': 'Name / Nom',
+        'pp-f-eyes': 'Eyes / Yeux',
+        'pp-f-cosmic': 'Cosmic placement',
+        'pp-f-residency': 'Residency status',
+        'pp-f-marks': 'Identification marks',
+        'pp-f-validity': 'Validity',
+        'pp-v-eyes': 'Blue',
+        'pp-v-cosmic': 'Virgo sun / Libra moon / Aries rising',
+        'pp-v-residency': 'Between flights &amp; feelings',
+        'pp-v-marks': 'More tattoos than my mom is aware of',
+        'pp-v-validity': 'Until further self-discovery',
+        'pp-sig': 'Holder’s signature',
+        'pp-about-eyebrow': '✦ &nbsp; a little about me &nbsp; ✦',
+        'pp-about-1': 'I have a relatively serious office job, which is funny, because I’m not a very serious person. I spend my days inside systems, meetings, and neatly structured thoughts — while internally I’m just waiting for my next chance to disappear somewhere warm, green, or slightly inconvenient to get to.',
+        'pp-about-2': 'I’m a creature of the outdoors forced into a calendar.',
+        'pp-about-3': 'I travel whenever I can, which means my life is a cycle of booking flights, romanticizing airports (even though they do their absolute best to test my patience), and then coming back home to check which of my plants survived my absence. It’s a delicate relationship — I leave, they suffer, I return, we rebuild. Some of them have trust issues at this point.',
+        'pp-about-4': 'I run on caffeine in all its socially acceptable forms: coffee when I want to feel put together, green tea when I’m pretending to be balanced, and energy drinks when things get a little… survival mode. Hydration is a concept I respect but don’t always practice.',
+        'pp-about-5': 'I have strong, unwavering opinions about cats. I won’t elaborate, but I will judge you quietly based on yours.',
+        'pp-about-6': 'There’s always a stack of unread books somewhere near me — not because I don’t read, but because I keep believing I will suddenly become the kind of person who reads three at once. Alongside that: dozens of poems, half-written, overfelt, and safely hidden in my notes where they can’t expose me.',
+        'pp-about-7': 'Lately, I’ve been mentally living in the 70s. A bit of a hippie in theory — soft rebellion, big feelings, music that makes everything feel like a scene. In practice, I still show up on time and reply to emails.',
+        'pp-about-8': 'I like creating in the widest sense of the word. Not polished, not always finished — just following whatever feels interesting, beautiful, or slightly obsessive at the moment. Some things turn into something. Some don’t. I keep going anyway.',
+        'pp-about-9': 'I notice small details. I overthink. I romanticize things that don’t need it. I get attached to places, moments, songs, and versions of myself that only existed briefly.',
+        'pp-about-10': 'I’m structured enough to function, chaotic enough to make it interesting, and curious enough to never really settle.',
+        'pp-about-11': 'Still figuring things out. Probably always will be.',
+        'map-hint': 'Click any card to explore the map — you can save locations straight from Google Maps.',
+        'map-t-mallorca': '🏖️ &nbsp; Mallorca',
+        'map-t-maldives': '🐠 &nbsp; Maldives',
+        'map-t-paris': '🗼 &nbsp; Paris',
+        'map-t-brussels': '🧇 &nbsp; Brussels',
+        'map-t-vienna': '☕ &nbsp; Vienna',
+        'map-t-thailand': '🛵 &nbsp; Thailand',
+        'map-t-milan': '🎨 &nbsp; Milan',
+        'map-t-newengland': '🍂 &nbsp; New England',
+        'map-t-newyork': '🗽 &nbsp; New York',
+        'map-t-amalfi': '🍋 &nbsp; Amalfi Coast',
+        'map-t-california': '🌅 &nbsp; California',
+        'map-t-rome': '🏺 &nbsp; Rome',
+        'map-t-copenhagen': '🧁 &nbsp; Copenhagen',
+        'map-t-sicily': '🌋 &nbsp; Sicily',
+        'map-t-edinburgh': '🏰 &nbsp; Edinburgh',
+        'map-t-rhodes': '🏛️ &nbsp; Rhodes',
+        'map-t-poland': '🌲 &nbsp; Poland',
+        'map-t-berlin': '🎸 &nbsp; Berlin',
+        'btn-save': 'Save',
+        'ph-video-link': 'Paste YouTube or Vimeo link for this trip…',
+        'td-playlistlink': '🎵 Hear how it sounded →',
+        'td-ownerhint': 'Drop some in above ↑',
+        'outfits-select': '— Select trip or home —',
+        'pl-listen': '▶ Press play. You’re welcome.',
+        'ph-pl-link': 'Paste YouTube or Spotify playlist URL…',
+        'owner-toggle': '⚙ &nbsp; Owner mode',
+        'login-title': 'Owner login',
+        'login-sub': 'Sign in to edit your site.',
+        'ph-email': 'Email',
+        'ph-password': 'Password',
+        'login-cancel': 'Cancel',
+        'login-submit': 'Log in',
         'nav-welcome': 'Welcome', 'nav-adventures': 'Adventures', 'nav-homes': 'Homes', 'nav-outfits': 'Outfits',
         'nav-map': 'Map', 'nav-notes': 'Notes to Self', 'nav-playlists': 'Playlists', 'nav-menu': 'Menu',
+        'nav-about': 'About Me',
+        'about-eyebrow': '&#10022; &nbsp; The Passenger &nbsp; &#10022;', 'about-title': 'About Me', 'about-sub': 'Officially unofficial. Please do not present at any border.',
+        'about-cta': 'See all the country stamps I gathered so far &nbsp;&rarr;',
         'welcome-sub': 'for friends, family &amp; the chronically nosy &nbsp;&#x2708;',
         'welcome-desc': 'Welcome. If you found this page, I like you enough to let you see all of it &mdash; the <strong>stunning views</strong>, the overexposed photos, the shaky camera work, and at least one incident per trip I\'ll probably never fully explain.<br><br>This is where I archive my adventures so you can live vicariously while I pretend to be a travel influencer &mdash; no ring light, no itinerary guides, just me and a carry-on I somehow always manage to overpack.<br><br>No brand deals. No sponsored content. (Yet.) Just <strong>really good trips</strong> and a genuine inability to leave anything behind. Enjoy.',
         'welcome-tag-outfits': 'My Outfits', 'welcome-tag-map': 'The Map', 'welcome-tag-notes': 'Notes to Self', 'welcome-tag-playlists': 'Playlists',
@@ -3638,8 +3188,72 @@
         'footer-credit': 'Designed &amp; built by Patrycja &nbsp;&middot;&nbsp; No copies permitted',
       },
       pl: {
+        'pp-country': 'Republika Krainy Czarów',
+        'pp-docno': 'Nr paszportu',
+        'pp-passport': 'Paszport · Passeport',
+        'pp-type': 'Typ',
+        'pp-f-name': 'Imię / Nom',
+        'pp-f-eyes': 'Oczy / Yeux',
+        'pp-f-cosmic': 'Układ kosmiczny',
+        'pp-f-residency': 'Status pobytu',
+        'pp-f-marks': 'Znaki szczególne',
+        'pp-f-validity': 'Ważność',
+        'pp-v-eyes': 'Niebieskie',
+        'pp-v-cosmic': 'Słońce w Pannie / Księżyc w Wadze / Ascendent w Baranie',
+        'pp-v-residency': 'Między lotami a uczuciami',
+        'pp-v-marks': 'Więcej tatuaży, niż wie moja mama',
+        'pp-v-validity': 'Do odwołania w ramach poznawania siebie',
+        'pp-sig': 'Podpis posiadacza',
+        'pp-about-eyebrow': '✦ &nbsp; trochę o mnie &nbsp; ✦',
+        'pp-about-1': 'Mam stosunkowo poważną pracę biurową, co jest zabawne, bo nie jestem zbyt poważną osobą. Dni spędzam wśród systemów, spotkań i porządnie poukładanych myśli — podczas gdy wewnętrznie po prostu czekam na kolejną okazję, by zniknąć gdzieś, gdzie jest ciepło, zielono albo trochę niewygodnie dojechać.',
+        'pp-about-2': 'Jestem stworzeniem natury wciśniętym w kalendarz.',
+        'pp-about-3': 'Podróżuję, kiedy tylko mogę, co oznacza, że moje życie to cykl rezerwowania lotów, romantyzowania lotnisk (choć robią wszystko, by wystawić moją cierpliwość na próbę) i wracania do domu, by sprawdzić, które rośliny przetrwały moją nieobecność. To delikatna relacja — wyjeżdżam, one cierpią, wracam, odbudowujemy. Niektóre mają już problemy z zaufaniem.',
+        'pp-about-4': 'Napędza mnie kofeina we wszystkich społecznie akceptowalnych formach: kawa, gdy chcę poczuć się ogarnięta, zielona herbata, gdy udaję zrównoważoną, i napoje energetyczne, gdy robi się trochę… tryb przetrwania. Nawodnienie to koncept, który szanuję, ale nie zawsze praktykuję.',
+        'pp-about-5': 'Mam silne, niezachwiane poglądy na temat kotów. Nie będę się rozwodzić, ale po cichu ocenię cię na podstawie twoich.',
+        'pp-about-6': 'Zawsze gdzieś obok mnie leży stos nieprzeczytanych książek — nie dlatego, że nie czytam, ale dlatego, że wciąż wierzę, że nagle stanę się osobą, która czyta trzy naraz. A do tego: dziesiątki wierszy, na wpół napisanych, przeżytych zbyt mocno i bezpiecznie schowanych w notatkach, gdzie nie mogą mnie zdradzić.',
+        'pp-about-7': 'Ostatnio mentalnie żyję w latach 70. Trochę hipiska w teorii — łagodny bunt, wielkie emocje, muzyka, przez którą wszystko wydaje się sceną z filmu. W praktyce nadal przychodzę na czas i odpisuję na maile.',
+        'pp-about-8': 'Lubię tworzyć w najszerszym sensie tego słowa. Nie dopracowane, nie zawsze skończone — po prostu podążam za tym, co w danej chwili wydaje się interesujące, piękne albo lekko obsesyjne. Niektóre rzeczy w coś się zamieniają. Inne nie. I tak idę dalej.',
+        'pp-about-9': 'Zauważam drobne szczegóły. Przemyśliwuję wszystko za bardzo. Romantyzuję rzeczy, które tego nie potrzebują. Przywiązuję się do miejsc, chwil, piosenek i wersji siebie, które istniały tylko przez moment.',
+        'pp-about-10': 'Jestem wystarczająco poukładana, by funkcjonować, wystarczająco chaotyczna, by było ciekawie, i wystarczająco ciekawa świata, by nigdy się nie zatrzymać na dobre.',
+        'pp-about-11': 'Wciąż wszystko sobie układam. Pewnie zawsze będę.',
+        'map-hint': 'Kliknij dowolną kartę, aby odkryć mapę — możesz zapisywać lokalizacje prosto z Google Maps.',
+        'map-t-mallorca': '🏖️ &nbsp; Majorka',
+        'map-t-maldives': '🐠 &nbsp; Malediwy',
+        'map-t-paris': '🗼 &nbsp; Paryż',
+        'map-t-brussels': '🧇 &nbsp; Bruksela',
+        'map-t-vienna': '☕ &nbsp; Wiedeń',
+        'map-t-thailand': '🛵 &nbsp; Tajlandia',
+        'map-t-milan': '🎨 &nbsp; Mediolan',
+        'map-t-newengland': '🍂 &nbsp; Nowa Anglia',
+        'map-t-newyork': '🗽 &nbsp; Nowy Jork',
+        'map-t-amalfi': '🍋 &nbsp; Wybrzeże Amalfi',
+        'map-t-california': '🌅 &nbsp; Kalifornia',
+        'map-t-rome': '🏺 &nbsp; Rzym',
+        'map-t-copenhagen': '🧁 &nbsp; Kopenhaga',
+        'map-t-sicily': '🌋 &nbsp; Sycylia',
+        'map-t-edinburgh': '🏰 &nbsp; Edynburg',
+        'map-t-rhodes': '🏛️ &nbsp; Rodos',
+        'map-t-poland': '🌲 &nbsp; Polska',
+        'map-t-berlin': '🎸 &nbsp; Berlin',
+        'btn-save': 'Zapisz',
+        'ph-video-link': 'Wklej link do YouTube lub Vimeo dla tej podróży…',
+        'td-playlistlink': '🎵 Posłuchaj, jak brzmiało →',
+        'td-ownerhint': 'Wrzuć kilka powyżej ↑',
+        'outfits-select': '— Wybierz podróż lub dom —',
+        'pl-listen': '▶ Włącz odtwarzanie. Nie ma za co.',
+        'ph-pl-link': 'Wklej adres playlisty YouTube lub Spotify…',
+        'owner-toggle': '⚙ &nbsp; Tryb właściciela',
+        'login-title': 'Logowanie właściciela',
+        'login-sub': 'Zaloguj się, aby edytować stronę.',
+        'ph-email': 'E-mail',
+        'ph-password': 'Hasło',
+        'login-cancel': 'Anuluj',
+        'login-submit': 'Zaloguj się',
         'nav-welcome': 'Witaj', 'nav-adventures': 'Przygody', 'nav-homes': 'Domy', 'nav-outfits': 'Stylizacje',
         'nav-map': 'Mapa', 'nav-notes': 'Notatki', 'nav-playlists': 'Playlisty', 'nav-menu': 'Menu',
+        'nav-about': 'O Mnie',
+        'about-eyebrow': '&#10022; &nbsp; Pasa&zdot;erka &nbsp; &#10022;', 'about-title': 'O Mnie', 'about-sub': 'Oficjalnie nieoficjalne. Prosz&eogon; nie okazywa&cacute; na &zdot;adnej granicy.',
+        'about-cta': 'Zobacz wszystkie piecz&aogon;tki, kt&oacute;re do tej pory zebra&lstrok;am &nbsp;&rarr;',
         'welcome-sub': 'dla przyjaci&oacute;&lstrok;, rodziny i chronicznych ciekawskich &nbsp;&#x2708;',
         'welcome-desc': 'Witaj. Skoro tu trafi&lstrok;e&sacute;, lubi&eogon; ci&eogon; na tyle, &zdot;eby pokaza&cacute; ci wszystko &mdash; <strong>zapieraj&aogon;ce dech widoki</strong>, prze&sacute;wietlone zdj&eogon;cia, trz&eogon;s&aogon;c&aogon; si&eogon; kamer&eogon; i przynajmniej jeden incydent na wyjazd, kt&oacute;rego pewnie nigdy w pe&lstrok;ni nie wyja&sacute;ni&eogon;.<br><br>Tu archiwizuj&eogon; moje przygody, &zdot;eby&sacute; m&oacute;g&lstrok; prze&zdot;ywa&cacute; je przeze mnie, podczas gdy ja udaj&eogon; influencerk&eogon; podr&oacute;&zdot;nicz&aogon; &mdash; bez ring lighta, bez przewodnik&oacute;w, tylko ja i ma&lstrok;a walizka, kt&oacute;r&aogon; i tak za ka&zdot;dym razem udaje mi si&eogon; przepakowa&cacute;.<br><br>&Zdot;adnych deal brandowych. &Zdot;adnego sponsorowanego contentu. (Jeszcze.) Tylko <strong>naprawd&eogon; &sacute;wietne wycieczki</strong> i nieust&eogon;pliwa niemo&zdot;no&sacute;&cacute; zostawienia czegokolwiek za sob&aogon;. Mi&lstrok;ej lektury.',
         'welcome-tag-outfits': 'Moje Stylizacje', 'welcome-tag-map': 'Mapa', 'welcome-tag-notes': 'Notatki', 'welcome-tag-playlists': 'Playlisty',
@@ -3672,8 +3286,72 @@
         'footer-credit': 'Zaprojektowane i zbudowane przez Patrycj&eogon; &nbsp;&middot;&nbsp; Kopiowanie zabronione',
       },
       fr: {
+        'pp-country': 'République du Pays des Merveilles',
+        'pp-docno': 'N° de passeport',
+        'pp-passport': 'Passeport · Passport',
+        'pp-type': 'Type',
+        'pp-f-name': 'Nom / Name',
+        'pp-f-eyes': 'Yeux / Eyes',
+        'pp-f-cosmic': 'Carte du ciel',
+        'pp-f-residency': 'Statut de résidence',
+        'pp-f-marks': 'Signes particuliers',
+        'pp-f-validity': 'Validité',
+        'pp-v-eyes': 'Bleus',
+        'pp-v-cosmic': 'Soleil en Vierge / Lune en Balance / Ascendant Bélier',
+        'pp-v-residency': 'Entre deux vols et deux émotions',
+        'pp-v-marks': 'Plus de tatouages que ma mère ne le sait',
+        'pp-v-validity': 'Jusqu’à nouvelle découverte de soi',
+        'pp-sig': 'Signature du titulaire',
+        'pp-about-eyebrow': '✦ &nbsp; un peu sur moi &nbsp; ✦',
+        'pp-about-1': 'J’ai un travail de bureau relativement sérieux, ce qui est drôle, parce que je ne suis pas quelqu’un de très sérieux. Je passe mes journées dans des systèmes, des réunions et des pensées bien ordonnées — alors qu’intérieurement j’attends seulement ma prochaine occasion de disparaître quelque part de chaud, de vert, ou de légèrement compliqué d’accès.',
+        'pp-about-2': 'Je suis une créature du plein air forcée à entrer dans un agenda.',
+        'pp-about-3': 'Je voyage dès que je peux, ce qui veut dire que ma vie est un cycle : réserver des vols, romancer les aéroports (même s’ils font de leur mieux pour tester ma patience), puis rentrer à la maison pour voir lesquelles de mes plantes ont survécu à mon absence. C’est une relation délicate — je pars, elles souffrent, je reviens, on reconstruit. Certaines ont désormais des problèmes de confiance.',
+        'pp-about-4': 'Je carbure à la caféine sous toutes ses formes socialement acceptables : café quand je veux avoir l’air organisée, thé vert quand je fais semblant d’être équilibrée, et boissons énergisantes quand ça vire un peu… mode survie. L’hydratation est un concept que je respecte mais que je ne pratique pas toujours.',
+        'pp-about-5': 'J’ai des opinions fortes et inébranlables sur les chats. Je ne développerai pas, mais je te jugerai discrètement selon les tiens.',
+        'pp-about-6': 'Il y a toujours une pile de livres non lus quelque part près de moi — non pas parce que je ne lis pas, mais parce que je continue de croire que je vais soudain devenir le genre de personne qui en lit trois à la fois. À côté de ça : des dizaines de poèmes, à moitié écrits, trop ressentis, et bien cachés dans mes notes où ils ne peuvent pas me trahir.',
+        'pp-about-7': 'Ces derniers temps, je vis mentalement dans les années 70. Un peu hippie en théorie — douce rébellion, grandes émotions, une musique qui donne à tout des airs de scène de film. En pratique, j’arrive toujours à l’heure et je réponds à mes e-mails.',
+        'pp-about-8': 'J’aime créer au sens le plus large du terme. Pas parfait, pas toujours fini — je suis juste ce qui me semble intéressant, beau ou un peu obsédant sur le moment. Certaines choses deviennent quelque chose. D’autres non. Je continue quand même.',
+        'pp-about-9': 'Je remarque les petits détails. Je réfléchis trop. Je romance des choses qui n’en ont pas besoin. Je m’attache à des lieux, des moments, des chansons et des versions de moi qui n’ont existé qu’un instant.',
+        'pp-about-10': 'Je suis assez structurée pour fonctionner, assez chaotique pour que ce soit intéressant, et assez curieuse pour ne jamais vraiment me poser.',
+        'pp-about-11': 'Toujours en train de comprendre les choses. Probablement pour toujours.',
+        'map-hint': 'Cliquez sur une carte pour explorer la carte — vous pouvez enregistrer des lieux directement depuis Google Maps.',
+        'map-t-mallorca': '🏖️ &nbsp; Majorque',
+        'map-t-maldives': '🐠 &nbsp; Maldives',
+        'map-t-paris': '🗼 &nbsp; Paris',
+        'map-t-brussels': '🧇 &nbsp; Bruxelles',
+        'map-t-vienna': '☕ &nbsp; Vienne',
+        'map-t-thailand': '🛵 &nbsp; Thaïlande',
+        'map-t-milan': '🎨 &nbsp; Milan',
+        'map-t-newengland': '🍂 &nbsp; Nouvelle-Angleterre',
+        'map-t-newyork': '🗽 &nbsp; New York',
+        'map-t-amalfi': '🍋 &nbsp; Côte Amalfitaine',
+        'map-t-california': '🌅 &nbsp; Californie',
+        'map-t-rome': '🏺 &nbsp; Rome',
+        'map-t-copenhagen': '🧁 &nbsp; Copenhague',
+        'map-t-sicily': '🌋 &nbsp; Sicile',
+        'map-t-edinburgh': '🏰 &nbsp; Édimbourg',
+        'map-t-rhodes': '🏛️ &nbsp; Rhodes',
+        'map-t-poland': '🌲 &nbsp; Pologne',
+        'map-t-berlin': '🎸 &nbsp; Berlin',
+        'btn-save': 'Enregistrer',
+        'ph-video-link': 'Collez un lien YouTube ou Vimeo pour ce voyage…',
+        'td-playlistlink': '🎵 Écoutez l’ambiance →',
+        'td-ownerhint': 'Déposez-en au-dessus ↑',
+        'outfits-select': '— Choisir un voyage ou un chez-moi —',
+        'pl-listen': '▶ Appuyez sur lecture. De rien.',
+        'ph-pl-link': 'Collez l’URL d’une playlist YouTube ou Spotify…',
+        'owner-toggle': '⚙ &nbsp; Mode propriétaire',
+        'login-title': 'Connexion propriétaire',
+        'login-sub': 'Connectez-vous pour modifier votre site.',
+        'ph-email': 'E-mail',
+        'ph-password': 'Mot de passe',
+        'login-cancel': 'Annuler',
+        'login-submit': 'Se connecter',
         'nav-welcome': 'Accueil', 'nav-adventures': 'Aventures', 'nav-homes': 'Chez Moi', 'nav-outfits': 'Tenues',
         'nav-map': 'Carte', 'nav-notes': 'Notes Perso', 'nav-playlists': 'Playlists', 'nav-menu': 'Menu',
+        'nav-about': '&Agrave; Propos',
+        'about-eyebrow': '&#10022; &nbsp; La Passag&egrave;re &nbsp; &#10022;', 'about-title': '&Agrave; Propos', 'about-sub': 'Officiellement non officiel. &Agrave; ne pr&eacute;senter &agrave; aucune fronti&egrave;re.',
+        'about-cta': 'Voir tous les tampons de pays que j\'ai collect&eacute;s jusqu\'ici &nbsp;&rarr;',
         'welcome-sub': 'pour les amis, la famille &amp; les incurables curieux &nbsp;&#x2708;',
         'welcome-desc': 'Bienvenue. Si tu as trouv&eacute; cette page, je t\'aime assez pour te montrer tout &mdash; les <strong>vues &agrave; couper le souffle</strong>, les photos surexpos&eacute;es, les images tremblantes et au moins un incident par voyage que je n\'expliquerai probablement jamais vraiment.<br><br>C\'est ici que j\'archive mes aventures pour que tu puisses vivre par procuration pendant que je pr&eacute;tends &ecirc;tre une influenceuse voyage &mdash; sans ring light, sans guides d\'itin&eacute;raire, juste moi et un bagage cabine que j\'arrive toujours &agrave; surcharger.<br><br>Pas de deals de marque. Pas de contenu sponsoris&eacute;. (Encore.) Juste <strong>de vraiment bons voyages</strong> et une sinc&egrave;re incapacit&eacute; &agrave; ne rien laisser derri&egrave;re moi. Bonne lecture.',
         'welcome-tag-outfits': 'Mes Tenues', 'welcome-tag-map': 'La Carte', 'welcome-tag-notes': 'Notes Perso', 'welcome-tag-playlists': 'Playlists',
@@ -3706,8 +3384,72 @@
         'footer-credit': 'Con&ccedil;u &amp; construit par Patrycja &nbsp;&middot;&nbsp; Toute copie interdite',
       },
       de: {
+        'pp-country': 'Republik Wunderland',
+        'pp-docno': 'Pass-Nr.',
+        'pp-passport': 'Reisepass · Passeport',
+        'pp-type': 'Typ',
+        'pp-f-name': 'Name / Nom',
+        'pp-f-eyes': 'Augen / Yeux',
+        'pp-f-cosmic': 'Kosmische Konstellation',
+        'pp-f-residency': 'Aufenthaltsstatus',
+        'pp-f-marks': 'Besondere Kennzeichen',
+        'pp-f-validity': 'Gültigkeit',
+        'pp-v-eyes': 'Blau',
+        'pp-v-cosmic': 'Sonne in der Jungfrau / Mond in der Waage / Aszendent Widder',
+        'pp-v-residency': 'Zwischen Flügen und Gefühlen',
+        'pp-v-marks': 'Mehr Tattoos, als meine Mutter weiß',
+        'pp-v-validity': 'Bis auf Weiteres zur Selbstfindung',
+        'pp-sig': 'Unterschrift der Inhaberin',
+        'pp-about-eyebrow': '✦ &nbsp; ein bisschen über mich &nbsp; ✦',
+        'pp-about-1': 'Ich habe einen relativ seriösen Bürojob, was witzig ist, weil ich kein besonders seriöser Mensch bin. Meine Tage verbringe ich in Systemen, Meetings und ordentlich strukturierten Gedanken — während ich innerlich nur auf die nächste Gelegenheit warte, irgendwo zu verschwinden, wo es warm, grün oder etwas umständlich zu erreichen ist.',
+        'pp-about-2': 'Ich bin ein Wesen der freien Natur, gezwängt in einen Kalender.',
+        'pp-about-3': 'Ich reise, wann immer ich kann, was bedeutet, dass mein Leben ein Kreislauf ist: Flüge buchen, Flughäfen romantisieren (auch wenn sie ihr Bestes tun, um meine Geduld zu testen) und dann nach Hause kommen, um zu prüfen, welche meiner Pflanzen meine Abwesenheit überlebt haben. Es ist eine empfindliche Beziehung — ich gehe, sie leiden, ich komme zurück, wir bauen wieder auf. Einige haben inzwischen Vertrauensprobleme.',
+        'pp-about-4': 'Ich laufe auf Koffein in all seinen gesellschaftlich akzeptierten Formen: Kaffee, wenn ich mich organisiert fühlen will, grüner Tee, wenn ich ausgeglichen tue, und Energydrinks, wenn es etwas… Überlebensmodus wird. Flüssigkeitszufuhr ist ein Konzept, das ich respektiere, aber nicht immer praktiziere.',
+        'pp-about-5': 'Ich habe starke, unerschütterliche Meinungen über Katzen. Ich hole nicht weiter aus, aber ich werde dich still anhand deiner beurteilen.',
+        'pp-about-6': 'Irgendwo neben mir liegt immer ein Stapel ungelesener Bücher — nicht weil ich nicht lese, sondern weil ich weiter glaube, ich würde plötzlich zu der Art Mensch, die drei auf einmal liest. Dazu: Dutzende Gedichte, halb geschrieben, zu sehr gefühlt und sicher in meinen Notizen versteckt, wo sie mich nicht verraten können.',
+        'pp-about-7': 'In letzter Zeit lebe ich gedanklich in den 70ern. In der Theorie ein bisschen Hippie — sanfte Rebellion, große Gefühle, Musik, die alles wie eine Filmszene wirken lässt. In der Praxis bin ich immer noch pünktlich und beantworte E-Mails.',
+        'pp-about-8': 'Ich erschaffe gern im weitesten Sinne des Wortes. Nicht poliert, nicht immer fertig — ich folge einfach dem, was sich gerade interessant, schön oder leicht obsessiv anfühlt. Manches wird zu etwas. Manches nicht. Ich mache trotzdem weiter.',
+        'pp-about-9': 'Ich bemerke kleine Details. Ich denke zu viel nach. Ich romantisiere Dinge, die es nicht brauchen. Ich hänge mich an Orte, Momente, Lieder und Versionen von mir, die nur kurz existierten.',
+        'pp-about-10': 'Ich bin strukturiert genug, um zu funktionieren, chaotisch genug, um es interessant zu machen, und neugierig genug, um nie wirklich zur Ruhe zu kommen.',
+        'pp-about-11': 'Versuche immer noch, alles herauszufinden. Werde ich wahrscheinlich immer.',
+        'map-hint': 'Klicke auf eine Karte, um die Karte zu erkunden — du kannst Orte direkt aus Google Maps speichern.',
+        'map-t-mallorca': '🏖️ &nbsp; Mallorca',
+        'map-t-maldives': '🐠 &nbsp; Malediven',
+        'map-t-paris': '🗼 &nbsp; Paris',
+        'map-t-brussels': '🧇 &nbsp; Brüssel',
+        'map-t-vienna': '☕ &nbsp; Wien',
+        'map-t-thailand': '🛵 &nbsp; Thailand',
+        'map-t-milan': '🎨 &nbsp; Mailand',
+        'map-t-newengland': '🍂 &nbsp; Neuengland',
+        'map-t-newyork': '🗽 &nbsp; New York',
+        'map-t-amalfi': '🍋 &nbsp; Amalfiküste',
+        'map-t-california': '🌅 &nbsp; Kalifornien',
+        'map-t-rome': '🏺 &nbsp; Rom',
+        'map-t-copenhagen': '🧁 &nbsp; Kopenhagen',
+        'map-t-sicily': '🌋 &nbsp; Sizilien',
+        'map-t-edinburgh': '🏰 &nbsp; Edinburgh',
+        'map-t-rhodes': '🏛️ &nbsp; Rhodos',
+        'map-t-poland': '🌲 &nbsp; Polen',
+        'map-t-berlin': '🎸 &nbsp; Berlin',
+        'btn-save': 'Speichern',
+        'ph-video-link': 'YouTube- oder Vimeo-Link für diese Reise einfügen…',
+        'td-playlistlink': '🎵 Hör, wie es klang →',
+        'td-ownerhint': 'Lade oben welche hoch ↑',
+        'outfits-select': '— Reise oder Zuhause wählen —',
+        'pl-listen': '▶ Drück auf Play. Gern geschehen.',
+        'ph-pl-link': 'YouTube- oder Spotify-Playlist-URL einfügen…',
+        'owner-toggle': '⚙ &nbsp; Eigentümer-Modus',
+        'login-title': 'Eigentümer-Login',
+        'login-sub': 'Melde dich an, um deine Seite zu bearbeiten.',
+        'ph-email': 'E-Mail',
+        'ph-password': 'Passwort',
+        'login-cancel': 'Abbrechen',
+        'login-submit': 'Anmelden',
         'nav-welcome': 'Willkommen', 'nav-adventures': 'Abenteuer', 'nav-homes': 'Zuhause', 'nav-outfits': 'Outfits',
         'nav-map': 'Karte', 'nav-notes': 'Notizen', 'nav-playlists': 'Playlists', 'nav-menu': 'Men&uuml;',
+        'nav-about': '&Uuml;ber Mich',
+        'about-eyebrow': '&#10022; &nbsp; Die Passagierin &nbsp; &#10022;', 'about-title': '&Uuml;ber Mich', 'about-sub': 'Offiziell inoffiziell. Bitte an keiner Grenze vorzeigen.',
+        'about-cta': 'Sieh dir all die L&auml;nderstempel an, die ich bisher gesammelt habe &nbsp;&rarr;',
         'welcome-sub': 'f&uuml;r Freunde, Familie &amp; die chronisch Neugierigen &nbsp;&#x2708;',
         'welcome-desc': 'Willkommen. Wenn du diese Seite gefunden hast, mag ich dich genug, um dir alles zu zeigen &mdash; die <strong>atemberaubenden Aussichten</strong>, die &uuml;berbelichteten Fotos, die wackelige Kamera und mindestens einen Vorfall pro Reise, den ich wahrscheinlich nie vollst&auml;ndig erkl&auml;ren werde.<br><br>Hier archiviere ich meine Abenteuer, damit du aus der Ferne miterleben kannst, w&auml;hrend ich so tue, als w&auml;re ich eine Reise-Influencerin &mdash; kein Ringlicht, keine Reisef&uuml;hrer, nur ich und ein Handgep&auml;ck, das ich irgendwie immer zu vollpacken schaffe.<br><br>Keine Brand-Deals. Kein gesponserter Content. (Noch nicht.) Nur <strong>wirklich gute Reisen</strong> und eine echte Unf&auml;higkeit, irgendetwas zur&uuml;ckzulassen. Viel Spa&szlig;.',
         'welcome-tag-outfits': 'Meine Outfits', 'welcome-tag-map': 'Die Karte', 'welcome-tag-notes': 'Notizen', 'welcome-tag-playlists': 'Playlists',
@@ -3740,8 +3482,72 @@
         'footer-credit': 'Entworfen &amp; erstellt von Patrycja &nbsp;&middot;&nbsp; Kopieren nicht gestattet',
       },
       it: {
+        'pp-country': 'Repubblica del Paese delle Meraviglie',
+        'pp-docno': 'N. passaporto',
+        'pp-passport': 'Passaporto · Passeport',
+        'pp-type': 'Tipo',
+        'pp-f-name': 'Nome / Nom',
+        'pp-f-eyes': 'Occhi / Yeux',
+        'pp-f-cosmic': 'Configurazione cosmica',
+        'pp-f-residency': 'Stato di residenza',
+        'pp-f-marks': 'Segni particolari',
+        'pp-f-validity': 'Validità',
+        'pp-v-eyes': 'Azzurri',
+        'pp-v-cosmic': 'Sole in Vergine / Luna in Bilancia / Ascendente Ariete',
+        'pp-v-residency': 'Tra un volo e un’emozione',
+        'pp-v-marks': 'Più tatuaggi di quanti ne sappia mia madre',
+        'pp-v-validity': 'Fino a nuova scoperta di sé',
+        'pp-sig': 'Firma del titolare',
+        'pp-about-eyebrow': '✦ &nbsp; un po’ su di me &nbsp; ✦',
+        'pp-about-1': 'Ho un lavoro d’ufficio relativamente serio, il che è buffo, perché non sono una persona molto seria. Passo le giornate tra sistemi, riunioni e pensieri ben ordinati — mentre dentro aspetto solo la prossima occasione per sparire da qualche parte di caldo, verde o un po’ scomodo da raggiungere.',
+        'pp-about-2': 'Sono una creatura dell’aria aperta costretta dentro un calendario.',
+        'pp-about-3': 'Viaggio ogni volta che posso, il che significa che la mia vita è un ciclo: prenotare voli, romanticizzare gli aeroporti (anche se fanno del loro meglio per mettere alla prova la mia pazienza) e poi tornare a casa a controllare quali piante sono sopravvissute alla mia assenza. È un rapporto delicato — parto, loro soffrono, torno, ricostruiamo. Alcune ormai hanno problemi di fiducia.',
+        'pp-about-4': 'Vado a caffeina in tutte le sue forme socialmente accettabili: caffè quando voglio sentirmi in ordine, tè verde quando fingo di essere equilibrata, ed energy drink quando le cose diventano un po’… modalità sopravvivenza. L’idratazione è un concetto che rispetto ma non sempre pratico.',
+        'pp-about-5': 'Ho opinioni forti e incrollabili sui gatti. Non mi dilungo, ma ti giudicherò in silenzio in base ai tuoi.',
+        'pp-about-6': 'C’è sempre una pila di libri non letti da qualche parte vicino a me — non perché non legga, ma perché continuo a credere che diventerò all’improvviso il tipo di persona che ne legge tre alla volta. Insieme a quelli: decine di poesie, scritte a metà, sentite troppo e al sicuro nascoste nelle mie note, dove non possono tradirmi.',
+        'pp-about-7': 'Ultimamente vivo mentalmente negli anni ’70. Un po’ hippie in teoria — ribellione dolce, grandi emozioni, musica che fa sembrare tutto una scena di un film. In pratica, arrivo ancora puntuale e rispondo alle e-mail.',
+        'pp-about-8': 'Mi piace creare nel senso più ampio del termine. Non rifinito, non sempre finito — seguo semplicemente ciò che in quel momento mi sembra interessante, bello o un po’ ossessivo. Alcune cose diventano qualcosa. Altre no. Vado avanti comunque.',
+        'pp-about-9': 'Noto i piccoli dettagli. Penso troppo. Romanticizzo cose che non ne hanno bisogno. Mi affeziono a luoghi, momenti, canzoni e versioni di me che sono esistite solo per poco.',
+        'pp-about-10': 'Sono abbastanza strutturata per funzionare, abbastanza caotica per renderlo interessante e abbastanza curiosa da non fermarmi mai davvero.',
+        'pp-about-11': 'Sto ancora capendo le cose. Probabilmente sarà sempre così.',
+        'map-hint': 'Clicca una scheda per esplorare la mappa — puoi salvare i luoghi direttamente da Google Maps.',
+        'map-t-mallorca': '🏖️ &nbsp; Maiorca',
+        'map-t-maldives': '🐠 &nbsp; Maldive',
+        'map-t-paris': '🗼 &nbsp; Parigi',
+        'map-t-brussels': '🧇 &nbsp; Bruxelles',
+        'map-t-vienna': '☕ &nbsp; Vienna',
+        'map-t-thailand': '🛵 &nbsp; Thailandia',
+        'map-t-milan': '🎨 &nbsp; Milano',
+        'map-t-newengland': '🍂 &nbsp; Nuova Inghilterra',
+        'map-t-newyork': '🗽 &nbsp; New York',
+        'map-t-amalfi': '🍋 &nbsp; Costiera Amalfitana',
+        'map-t-california': '🌅 &nbsp; California',
+        'map-t-rome': '🏺 &nbsp; Roma',
+        'map-t-copenhagen': '🧁 &nbsp; Copenaghen',
+        'map-t-sicily': '🌋 &nbsp; Sicilia',
+        'map-t-edinburgh': '🏰 &nbsp; Edimburgo',
+        'map-t-rhodes': '🏛️ &nbsp; Rodi',
+        'map-t-poland': '🌲 &nbsp; Polonia',
+        'map-t-berlin': '🎸 &nbsp; Berlino',
+        'btn-save': 'Salva',
+        'ph-video-link': 'Incolla un link YouTube o Vimeo per questo viaggio…',
+        'td-playlistlink': '🎵 Ascolta com’era →',
+        'td-ownerhint': 'Caricane qualcuna qui sopra ↑',
+        'outfits-select': '— Scegli un viaggio o una casa —',
+        'pl-listen': '▶ Premi play. Prego.',
+        'ph-pl-link': 'Incolla l’URL di una playlist YouTube o Spotify…',
+        'owner-toggle': '⚙ &nbsp; Modalità proprietario',
+        'login-title': 'Accesso proprietario',
+        'login-sub': 'Accedi per modificare il tuo sito.',
+        'ph-email': 'E-mail',
+        'ph-password': 'Password',
+        'login-cancel': 'Annulla',
+        'login-submit': 'Accedi',
         'nav-welcome': 'Benvenuti', 'nav-adventures': 'Avventure', 'nav-homes': 'Case', 'nav-outfits': 'Outfit',
         'nav-map': 'Mappa', 'nav-notes': 'Note', 'nav-playlists': 'Playlist', 'nav-menu': 'Menu',
+        'nav-about': 'Chi Sono',
+        'about-eyebrow': '&#10022; &nbsp; La Passeggera &nbsp; &#10022;', 'about-title': 'Chi Sono', 'about-sub': 'Ufficialmente non ufficiale. Da non presentare ad alcuna frontiera.',
+        'about-cta': 'Guarda tutti i timbri dei paesi che ho collezionato finora &nbsp;&rarr;',
         'welcome-sub': 'per amici, famiglia &amp; i cronicamente curiosi &nbsp;&#x2708;',
         'welcome-desc': 'Benvenuti. Se hai trovato questa pagina, mi stai abbastanza simpatico da lasciarti vedere tutto &mdash; le <strong>viste mozzafiato</strong>, le foto sovraesposte, le riprese tremolanti e almeno un incidente per viaggio che probabilmente non spiegher&ograve; mai del tutto.<br><br>Qui archivio le mie avventure cos&igrave; puoi viverle per procura mentre io fingo di essere una travel influencer &mdash; niente ring light, niente guide di viaggio, solo io e un bagaglio a mano che riesco sempre a riempire troppo.<br><br>Niente contratti con i brand. Niente contenuti sponsorizzati. (Per ora.) Solo <strong>viaggi davvero belli</strong> e una genuina incapacit&agrave; di lasciare indietro qualcosa. Buona visione.',
         'welcome-tag-outfits': 'I Miei Outfit', 'welcome-tag-map': 'La Mappa', 'welcome-tag-notes': 'Note', 'welcome-tag-playlists': 'Playlist',
@@ -3774,8 +3580,72 @@
         'footer-credit': 'Progettato &amp; realizzato da Patrycja &nbsp;&middot;&nbsp; Nessuna copia consentita',
       },
       es: {
+        'pp-country': 'República del País de las Maravillas',
+        'pp-docno': 'N.º de pasaporte',
+        'pp-passport': 'Pasaporte · Passeport',
+        'pp-type': 'Tipo',
+        'pp-f-name': 'Nombre / Nom',
+        'pp-f-eyes': 'Ojos / Yeux',
+        'pp-f-cosmic': 'Carta astral',
+        'pp-f-residency': 'Estado de residencia',
+        'pp-f-marks': 'Señas particulares',
+        'pp-f-validity': 'Validez',
+        'pp-v-eyes': 'Azules',
+        'pp-v-cosmic': 'Sol en Virgo / Luna en Libra / Ascendente Aries',
+        'pp-v-residency': 'Entre vuelos y sentimientos',
+        'pp-v-marks': 'Más tatuajes de los que mi madre sabe',
+        'pp-v-validity': 'Hasta nuevo autodescubrimiento',
+        'pp-sig': 'Firma del titular',
+        'pp-about-eyebrow': '✦ &nbsp; un poco sobre mí &nbsp; ✦',
+        'pp-about-1': 'Tengo un trabajo de oficina relativamente serio, lo cual es gracioso, porque no soy una persona muy seria. Paso los días entre sistemas, reuniones y pensamientos pulcramente ordenados — mientras que por dentro solo espero mi próxima oportunidad de desaparecer en algún lugar cálido, verde o un poco incómodo de alcanzar.',
+        'pp-about-2': 'Soy una criatura del aire libre obligada a meterse en un calendario.',
+        'pp-about-3': 'Viajo siempre que puedo, lo que significa que mi vida es un ciclo: reservar vuelos, romantizar aeropuertos (aunque hacen todo lo posible por poner a prueba mi paciencia) y luego volver a casa para ver cuáles de mis plantas sobrevivieron a mi ausencia. Es una relación delicada — me voy, sufren, vuelvo, reconstruimos. Algunas ya tienen problemas de confianza.',
+        'pp-about-4': 'Funciono a base de cafeína en todas sus formas socialmente aceptables: café cuando quiero sentirme organizada, té verde cuando finjo estar equilibrada y bebidas energéticas cuando la cosa se pone un poco… modo supervivencia. La hidratación es un concepto que respeto pero no siempre practico.',
+        'pp-about-5': 'Tengo opiniones firmes e inquebrantables sobre los gatos. No me extenderé, pero te juzgaré en silencio según los tuyos.',
+        'pp-about-6': 'Siempre hay una pila de libros sin leer cerca de mí — no porque no lea, sino porque sigo creyendo que de repente me convertiré en el tipo de persona que lee tres a la vez. Junto a eso: decenas de poemas, a medio escribir, sentidos de más y bien escondidos en mis notas, donde no pueden delatarme.',
+        'pp-about-7': 'Últimamente vivo mentalmente en los años 70. Un poco hippie en teoría — rebeldía suave, emociones grandes, música que hace que todo parezca una escena de película. En la práctica, sigo llegando a tiempo y respondiendo correos.',
+        'pp-about-8': 'Me gusta crear en el sentido más amplio de la palabra. Nada pulido, no siempre terminado — solo sigo lo que en el momento me parece interesante, bonito o un poco obsesivo. Algunas cosas se convierten en algo. Otras no. Sigo adelante igual.',
+        'pp-about-9': 'Me fijo en los pequeños detalles. Le doy demasiadas vueltas a todo. Romantizo cosas que no lo necesitan. Me encariño con lugares, momentos, canciones y versiones de mí que solo existieron por un instante.',
+        'pp-about-10': 'Soy lo bastante estructurada para funcionar, lo bastante caótica para que sea interesante y lo bastante curiosa para no asentarme nunca del todo.',
+        'pp-about-11': 'Aún averiguando las cosas. Probablemente siempre lo estaré.',
+        'map-hint': 'Haz clic en cualquier tarjeta para explorar el mapa — puedes guardar lugares directamente desde Google Maps.',
+        'map-t-mallorca': '🏖️ &nbsp; Mallorca',
+        'map-t-maldives': '🐠 &nbsp; Maldivas',
+        'map-t-paris': '🗼 &nbsp; París',
+        'map-t-brussels': '🧇 &nbsp; Bruselas',
+        'map-t-vienna': '☕ &nbsp; Viena',
+        'map-t-thailand': '🛵 &nbsp; Tailandia',
+        'map-t-milan': '🎨 &nbsp; Milán',
+        'map-t-newengland': '🍂 &nbsp; Nueva Inglaterra',
+        'map-t-newyork': '🗽 &nbsp; Nueva York',
+        'map-t-amalfi': '🍋 &nbsp; Costa Amalfitana',
+        'map-t-california': '🌅 &nbsp; California',
+        'map-t-rome': '🏺 &nbsp; Roma',
+        'map-t-copenhagen': '🧁 &nbsp; Copenhague',
+        'map-t-sicily': '🌋 &nbsp; Sicilia',
+        'map-t-edinburgh': '🏰 &nbsp; Edimburgo',
+        'map-t-rhodes': '🏛️ &nbsp; Rodas',
+        'map-t-poland': '🌲 &nbsp; Polonia',
+        'map-t-berlin': '🎸 &nbsp; Berlín',
+        'btn-save': 'Guardar',
+        'ph-video-link': 'Pega un enlace de YouTube o Vimeo para este viaje…',
+        'td-playlistlink': '🎵 Escucha cómo sonó →',
+        'td-ownerhint': 'Sube algunas arriba ↑',
+        'outfits-select': '— Elige un viaje o un hogar —',
+        'pl-listen': '▶ Dale al play. De nada.',
+        'ph-pl-link': 'Pega la URL de una playlist de YouTube o Spotify…',
+        'owner-toggle': '⚙ &nbsp; Modo propietario',
+        'login-title': 'Acceso del propietario',
+        'login-sub': 'Inicia sesión para editar tu sitio.',
+        'ph-email': 'Correo electrónico',
+        'ph-password': 'Contraseña',
+        'login-cancel': 'Cancelar',
+        'login-submit': 'Iniciar sesión',
         'nav-welcome': 'Bienvenida', 'nav-adventures': 'Aventuras', 'nav-homes': 'Hogares', 'nav-outfits': 'Looks',
         'nav-map': 'Mapa', 'nav-notes': 'Notas', 'nav-playlists': 'Playlists', 'nav-menu': 'Men&uacute;',
+        'nav-about': 'Sobre M&iacute;',
+        'about-eyebrow': '&#10022; &nbsp; La Pasajera &nbsp; &#10022;', 'about-title': 'Sobre M&iacute;', 'about-sub': 'Oficialmente no oficial. No presentar en ninguna frontera.',
+        'about-cta': 'Mira todos los sellos de pa&iacute;ses que he reunido hasta ahora &nbsp;&rarr;',
         'welcome-sub': 'para amigos, familia &amp; los cr&oacute;nicamente curiosos &nbsp;&#x2708;',
         'welcome-desc': 'Bienvenida. Si encontraste esta p&aacute;gina, me caes lo bastante bien como para dejarte verlo todo &mdash; las <strong>vistas impresionantes</strong>, las fotos sobreexpuestas, la c&aacute;mara temblorosa y al menos un incidente por viaje que probablemente nunca explicar&eacute; del todo.<br><br>Aqu&iacute; archivo mis aventuras para que puedas vivirlas indirectamente mientras finjo ser una influencer de viajes &mdash; sin aro de luz, sin gu&iacute;as de itinerario, solo yo y un equipaje de mano que siempre consigo sobrecargar.<br><br>Sin acuerdos con marcas. Sin contenido patrocinado. (Por ahora.) Solo <strong>viajes realmente buenos</strong> y una genuina incapacidad de dejar algo atr&aacute;s. Disfruta.',
         'welcome-tag-outfits': 'Mis Looks', 'welcome-tag-map': 'El Mapa', 'welcome-tag-notes': 'Notas', 'welcome-tag-playlists': 'Playlists',
@@ -3985,7 +3855,7 @@
       },
       thailand: {
         badge: '2025 &nbsp;·&nbsp; Thailand', location: 'Thailand',
-        title: { en: 'Thailand with Lolek', pl: 'Tajlandia z Lolkiem', fr: 'Thaïlande avec Lolek', de: 'Thailand mit Lolek', it: 'Thailandia con Lolek', es: 'Tailandia con Lolek' },
+        title: { en: 'Thailand', pl: 'Tajlandia', fr: 'Thaïlande', de: 'Thailand', it: 'Thailandia', es: 'Tailandia' },
         desc:  { en: 'Three weeks, one best friend, and approximately one million scooter kilometres. The Full Moon Party in Koh Phangan was everything they said it would be and nothing I was prepared for.',
                  pl: 'Trzy tygodnie, jedna najlepsza przyjaciółka i mniej więcej milion kilometrów na skuterze. Full Moon Party na Koh Phangan było wszystkim, co o nim mówiono, i niczym, na co byłam gotowa.',
                  fr: 'Trois semaines, une meilleure amie et environ un million de kilomètres en scooter. La Full Moon Party à Koh Phangan était tout ce qu\'on m\'avait dit et rien pour quoi j\'étais préparée.',
@@ -4005,7 +3875,7 @@
       },
       mallorca: {
         badge: '2026 &nbsp;·&nbsp; Spain', location: 'Mallorca, Spain',
-        title: { en: 'Mallorca with Kasia', pl: 'Majorka z Kasią', fr: 'Majorque avec Kasia', de: 'Mallorca mit Kasia', it: 'Maiorca con Kasia', es: 'Mallorca con Kasia' },
+        title: { en: 'Mallorca', pl: 'Majorka', fr: 'Majorque', de: 'Mallorca', it: 'Maiorca', es: 'Mallorca' },
         desc:  { en: 'One girls\' week. Perfect beaches, perfect company, and one tree that had the audacity to win. I have stitches. The tree does not. 10/10 for everything except the tree.',
                  pl: 'Tydzień dla dziewczyn. Perfekcyjne plaże, perfekcyjne towarzystwo i jedno drzewo, które miało czelność wygrać. Mam szwy. Drzewo nie. 10/10 za wszystko oprócz drzewa.',
                  fr: 'Une semaine entre filles. Des plages parfaites, une compagnie parfaite et un arbre qui a eu l\'audace de gagner. J\'ai des points de suture. L\'arbre non. 10/10 pour tout sauf l\'arbre.',
@@ -4113,6 +3983,16 @@
                  it: 'Caffè, palazzi imperiali e Sachertorte che ha davvero cambiato il mio rapporto con la torta al cioccolato. Una città che è bella da prima che fosse di moda preoccuparsi della bellezza.',
                  es: 'Cafeterías, palacios imperiales y Sachertorte que realmente cambió mi relación con el pastel de chocolate. Una ciudad que ha sido bella desde antes de que estuviera de moda preocuparse por la belleza.' }
       },
+      malta: {
+        badge: '2025 &nbsp;·&nbsp; Malta', location: 'Malta',
+        title: { en: 'Malta', pl: 'Malta', fr: 'Malte', de: 'Malta', it: 'Malta', es: 'Malta' },
+        desc:  { en: 'A quick November dash from the incoming cold. Hopped over to Comino and Gozo, kayaked just enough to feel sporty, and let the Mediterranean pretend it was still summer. Short, salty, and exactly what I needed.',
+                 pl: 'Szybka listopadowa ucieczka przed nadciągającym chłodem. Skok na Comino i Gozo, odrobina kajaka, żeby poczuć się sportowo, i Morze Śródziemne udające, że to wciąż lato. Krótko, słono i dokładnie tak, jak potrzebowałam.',
+                 fr: 'Une escapade éclair en novembre pour fuir le froid qui arrivait. Un saut à Comino et Gozo, juste assez de kayak pour me sentir sportive, et la Méditerranée qui faisait semblant d\'être encore en été. Court, salé et exactement ce qu\'il me fallait.',
+                 de: 'Ein schneller November-Ausreißer vor der nahenden Kälte. Rüber nach Comino und Gozo, gerade genug gepaddelt, um mich sportlich zu fühlen, und das Mittelmeer tat so, als wäre noch Sommer. Kurz, salzig und genau das, was ich brauchte.',
+                 it: 'Una fuga lampo di novembre dal freddo in arrivo. Salto a Comino e Gozo, giusto un po\' di kayak per sentirmi sportiva, e il Mediterraneo che fingeva fosse ancora estate. Breve, salato ed esattamente ciò di cui avevo bisogno.',
+                 es: 'Una escapada rápida en noviembre para huir del frío que llegaba. Un salto a Comino y Gozo, kayak suficiente para sentirme deportista, y el Mediterráneo fingiendo que aún era verano. Corto, salado y justo lo que necesitaba.' }
+      },
       paris: {
         badge: '2023 &amp; 2026 &nbsp;·&nbsp; France', location: 'Paris, France',
         title: { en: 'Paris', pl: 'Paryż', fr: 'Paris', de: 'Paris', it: 'Parigi', es: 'París' },
@@ -4154,6 +4034,116 @@
                  es: 'Mi otro hogar — el que me eligió de vuelta. Caótico, hermoso, permanentemente en construcción y absolutamente bien con todo eso. Mercados, parques, rincones que no aparecen en ninguna guía.' }
       },
     };
+
+    /* ── Adventures grid: render each trip as a distinct boarding pass ──
+       Pulls localized title/desc/badge from TRIPS and per-trip visual config
+       (code, accent, ticket variant, passport stamps) from TRIP_META. Keeps
+       data-trip-title / data-trip-desc so the i18n re-translation still works,
+       and onclick=openTrip so cards still open the trip detail. */
+    const ADV_ORDER = ['mallorca','maldives','paris','brussels','vienna','malta','thailand','milan','newengland','newyork','amalfi','california','rome','copenhagen','sicily','edinburgh','rhodes'];
+
+    const TRIP_META = {
+      mallorca:  { code:'PMI', accent:'#e7a6ad', variant:'classic', stamps:[{country:'SPAIN',date:"'26",glyph:'☼',ink:'#c2545f',rot:-9,shape:'circle',size:96}] },
+      maldives:  { code:'MLE', accent:'#2a9fb8', variant:'mono',    stamps:[{country:'MALDIVES',date:"'26",glyph:'⚓',ink:'#15788f',rot:7,shape:'oval',size:104}] },
+      paris:     { code:'CDG', accent:'#6c7a9c', variant:'ticket',  stamps:[{country:'FRANCE',date:"'23·'26",glyph:'★',ink:'#3f4d70',rot:-8,shape:'rect',size:102}] },
+      brussels:  { code:'BRU', accent:'#b98a4b', variant:'classic', stamps:[{country:'BELGIUM',date:"'22-'26",glyph:'◆',ink:'#8a6a2f',rot:9,shape:'hex',size:98}] },
+      vienna:    { code:'VIE', accent:'#b5564f', variant:'mono',    stamps:[{country:'AUSTRIA',date:"'25",glyph:'♔',ink:'#8f3f3a',rot:-9,shape:'doublecircle',size:94}] },
+      malta:     { code:'MLA', accent:'#3f86c9', variant:'ticket',  stamps:[{country:'MALTA',date:"NOV '25",glyph:'⚓',ink:'#2f6fb0',rot:-8,shape:'rect',size:104}] },
+      thailand:  { code:'BKK', accent:'#2f9e7a', variant:'classic', stamps:[{country:'THAILAND',date:"'25",glyph:'☾',ink:'#1f7d5e',rot:8,shape:'triangle',size:104}] },
+      milan:     { code:'MXP', accent:'#8a7d9b', variant:'mono',    stamps:[{country:'ITALY',date:"'23·'25",glyph:'✦',ink:'#5f5470',rot:-9,shape:'octagon',size:94}] },
+      newengland:{ code:'BOS', accent:'#c4703a', variant:'ticket',  stamps:[{country:'USA',date:"'19·'25",glyph:'☀',ink:'#9a4f24',rot:7,shape:'oval',size:98}] },
+      newyork:   { code:'JFK', accent:'#4a5a78', variant:'classic', stamps:[{country:'USA',date:"'18-'25",glyph:'★',ink:'#33415e',rot:-10,shape:'circle',size:90}] },
+      amalfi:    { code:'NAP', accent:'#d9a93f', variant:'mono',    stamps:[{country:'ITALY',date:"'24",glyph:'❀',ink:'#a37f1f',rot:9,shape:'hex',size:100}] },
+      california:{ code:'LAX', accent:'#d98a4f', variant:'ticket',  stamps:[{country:'USA',date:"'23",glyph:'☀',ink:'#b56a30',rot:-8,shape:'rect',size:96}] },
+      rome:      { code:'FCO', accent:'#a8704a', variant:'classic', stamps:[{country:'ITALY',date:"'23",glyph:'◆',ink:'#8a5436',rot:9,shape:'doublecircle',size:98}] },
+      copenhagen:{ code:'CPH', accent:'#c65b54', variant:'mono',    stamps:[{country:'DENMARK',date:"'23",glyph:'❄',ink:'#3f6f6a',rot:-9,shape:'oval',size:96}] },
+      sicily:    { code:'CTA', accent:'#b5613f', variant:'ticket',  stamps:[{country:'ITALY',date:"'23",glyph:'▲',ink:'#8f4a2f',rot:8,shape:'triangle',size:100}] },
+      edinburgh: { code:'EDI', accent:'#5d6b7a', variant:'classic', stamps:[{country:'SCOTLAND',date:"'23",glyph:'♜',ink:'#46535f',rot:-9,shape:'octagon',size:98}] },
+      rhodes:    { code:'RHO', accent:'#3f9fc4', variant:'mono',    stamps:[{country:'GREECE',date:"'20",glyph:'☼',ink:'#2f7f9c',rot:9,shape:'circle',size:102}] }
+    };
+
+    function bpHash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31 + str.charCodeAt(i)) >>> 0; } return h; }
+    function bpGate(id){ const h=bpHash(id); return 'ABCD'[h%4] + (h%28+1); }
+    function bpSeat(id){ const h=bpHash(id+'s'); return (h%42+1) + 'ABCDEF'[h%6]; }
+    function bpFlight(id){ const h=bpHash(id+'f'); return 'PA' + (100 + h%899); }
+
+    // SVG outline for each airport-stamp shape (drawn in a 0..100 box)
+    function bpStampSVG(shape){
+      var p;
+      switch (shape) {
+        case 'doublecircle': p = '<circle cx="50" cy="50" r="46"/><circle class="bp-stamp-inring" cx="50" cy="50" r="38"/>'; break;
+        case 'rect':         p = '<rect x="4" y="20" width="92" height="60" rx="7"/><rect class="bp-stamp-inring" x="9" y="25" width="82" height="50" rx="4"/>'; break;
+        case 'oval':         p = '<ellipse cx="50" cy="50" rx="48" ry="35"/><ellipse class="bp-stamp-inring" cx="50" cy="50" rx="42" ry="29"/>'; break;
+        case 'hex':          p = '<polygon points="27,6 73,6 97,50 73,94 27,94 3,50"/><polygon class="bp-stamp-inring" points="31,13 69,13 89,50 69,87 31,87 11,50"/>'; break;
+        case 'triangle':     p = '<polygon points="50,5 95,91 5,91"/><line class="bp-stamp-inring" x1="22" y1="68" x2="78" y2="68"/>'; break;
+        case 'octagon':      p = '<polygon points="32,4 68,4 96,32 96,68 68,96 32,96 4,68 4,32"/><polygon class="bp-stamp-inring" points="35,12 65,12 88,35 88,65 65,88 35,88 12,65 12,35"/>'; break;
+        default:             p = '<circle cx="50" cy="50" r="46"/><circle class="bp-stamp-inring" cx="50" cy="50" r="39"/>'; // circle (double ring)
+      }
+      return '<svg class="bp-stamp-frame" viewBox="0 0 100 100" aria-hidden="true">' + p + '</svg>';
+    }
+
+    var BP_STAMP_WORDS = ['Arrival', 'Airport', 'Entry', 'Admitted', 'Arrivals', 'Immigration'];
+
+    function bpStampHTML(s, id, i, code){
+      var shape = s.shape || 'circle';
+      var size  = s.size  || 90;
+      var seed  = bpHash(id + '_' + i);
+      // scatter each stamp to a different spot, kept inside the (enlarged) stamp area
+      var boxW = 188, boxH = 132;
+      var left = 2 + (seed % Math.max(1, boxW - size - 2));
+      var top  = 2 + (Math.floor(seed / 7) % Math.max(1, boxH - size - 2));
+      var word = BP_STAMP_WORDS[seed % BP_STAMP_WORDS.length];
+      var line = (code ? code + ' &#183; ' : '') + s.date;
+      return '<span class="bp-stamp bp-stamp--' + shape + '" aria-hidden="true" '
+           + 'style="--ink:' + s.ink + ';--rot:' + s.rot + 'deg;--size:' + size + 'px;top:' + top + 'px;left:' + left + 'px">'
+           + bpStampSVG(shape)
+           + '<span class="bp-stamp-text">'
+             + '<span class="bp-stamp-top"><span class="bp-stamp-plane">&#9992;</span><span class="bp-stamp-sub">' + word + '</span></span>'
+             + '<span class="bp-stamp-country">' + s.country + '</span>'
+             + '<span class="bp-stamp-date">' + line + '</span>'
+           + '</span>'
+           + '</span>';
+    }
+
+    function renderBoardingPasses(){
+      const grid = document.getElementById('video-grid');
+      if (!grid) return;
+      const lang = (typeof currentLang !== 'undefined' && currentLang) || 'en';
+      grid.innerHTML = ADV_ORDER.map(function(id){
+        const t = TRIPS[id]; if (!t) return '';
+        const m = TRIP_META[id] || { code:id.slice(0,3).toUpperCase(), accent:'#b98a4b', variant:'classic', stamps:[] };
+        const title = t.title[lang] || t.title.en;
+        const desc  = t.desc[lang]  || t.desc.en;
+        const isVlog = VLOG_TRIPS.indexOf(id) !== -1;
+        const stamps = (m.stamps || []).map(function(s, i){ return bpStampHTML(s, id, i, m.code); }).join('');
+        const click = "openTrip('" + id + "')";
+        return ''
+        + '<article class="bp bp--'+m.variant+'" style="--bp-accent:'+m.accent+'" '
+          + 'onclick="'+click+'" role="button" tabindex="0" '
+          + 'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();'+click+';}">'
+          + '<div class="bp-main">'
+            + '<div class="bp-head"><span class="bp-airline">&#9992;&#65039; Patricia Air</span><span class="bp-kind">Boarding Pass</span></div>'
+            + '<div class="bp-route"><span class="bp-code">'+m.code+'</span><h3 class="video-title bp-dest" data-trip-title="'+id+'">'+title+'</h3></div>'
+            + '<div class="bp-badge video-badge">'+t.badge+'</div>'
+            + '<p class="video-desc bp-desc" data-trip-desc="'+id+'">'+desc+'</p>'
+            + (isVlog ? '<span class="bp-vlog">&#9654; Watch the vlog</span>' : '')
+            + '<div class="bp-foot">'
+              + '<div class="bp-foot-grid">'
+                + '<span class="bp-k">Flight</span><span class="bp-v">'+bpFlight(id)+'</span>'
+                + '<span class="bp-k">Gate</span><span class="bp-v">'+bpGate(id)+'</span>'
+                + '<span class="bp-k">Seat</span><span class="bp-v">'+bpSeat(id)+'</span>'
+              + '</div>'
+              + '<div class="bp-barcode" aria-hidden="true"></div>'
+            + '</div>'
+          + '</div>'
+          + '<div class="bp-stub">'
+            + '<span class="bp-stub-label">'+m.code+' &#183; Patricia Air</span>'
+            + '<div class="bp-stamps">'+stamps+'</div>'
+            + '<div class="bp-barcode bp-barcode--v" aria-hidden="true"></div>'
+          + '</div>'
+        + '</article>';
+      }).join('');
+    }
 
     let currentTripId = null;
 
@@ -4431,8 +4421,8 @@
         if (!body || body.querySelector('.pl-link-row')) return;
         const row = document.createElement('div');
         row.className = 'owner-row pl-link-row';
-        row.innerHTML = '<input class="owner-input" id="pl-link-input-' + id + '" type="url" placeholder="Paste YouTube or Spotify playlist URL…" />'
-          + '<button class="owner-save" onclick="savePlaylistLink(\'' + id + '\')">Save</button>'
+        row.innerHTML = '<input class="owner-input" id="pl-link-input-' + id + '" type="url" data-i18n-ph="ph-pl-link" placeholder="Paste YouTube or Spotify playlist URL…" />'
+          + '<button class="owner-save" onclick="savePlaylistLink(\'' + id + '\')" data-i18n="btn-save">Save</button>'
           + '<span class="owner-note" id="pl-link-note-' + id + '"></span>';
         const btn = document.createElement('a');
         btn.className = 'playlist-listen-btn';
@@ -4441,7 +4431,8 @@
         btn.target = '_blank';
         btn.rel = 'noopener';
         btn.style.display = 'none';
-        btn.textContent = '▶ Press play. You\'re welcome.';
+        btn.setAttribute('data-i18n', 'pl-listen');
+        btn.innerHTML = (TRANSLATIONS[currentLang] || TRANSLATIONS.en)['pl-listen'];
         body.insertBefore(btn, body.firstChild);
         body.insertBefore(row, body.firstChild);
       });
@@ -5046,8 +5037,29 @@
       if (iframe) iframe.src = '';
     }
 
+    /* ── Build the Adventures boarding passes, then translate them ── */
+    renderBoardingPasses();
+
     /* ── Init language on load ── */
     setLanguage(currentLang);
+
+    /* ── Scatter blinking stars across the dark-mode welcome photos ── */
+    (function () {
+      document.querySelectorAll('.welcome-photo .wp-stars').forEach(function (box) {
+        for (var i = 0; i < 18; i++) {
+          var s = document.createElement('span');
+          s.className = 'wp-star';
+          var size = (1.6 + Math.random() * 2.2).toFixed(1) + 'px';
+          s.style.width = size;
+          s.style.height = size;
+          s.style.left = (Math.random() * 100).toFixed(1) + '%';
+          s.style.top = (Math.random() * 72).toFixed(1) + '%';
+          s.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+          s.style.animationDuration = (2.4 + Math.random() * 2.8).toFixed(2) + 's';
+          box.appendChild(s);
+        }
+      });
+    })();
   </script>
 
   <!-- ── Site footer ── -->
@@ -5073,6 +5085,7 @@
       </div>
     </div>
   </div>
+
 
 </body>
 </html>
